@@ -7,15 +7,22 @@ import * as express from 'express';
 import { WsAdapter } from '@nestjs/platform-ws';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule); // app = express + nest
-  app.useGlobalPipes(new ValidationPipe()); // 9 ~ 11 nestga tegishli
-  app.useGlobalInterceptors(new LoggingInterceptor()); //req, res kir-chiq time // middleware grql
-  app.enableCors({ origin: true, credentials: true }); // har qanday fayl uchun
+  const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.enableCors({ origin: true, credentials: true });
 
   app.use(graphqlUploadExpress({ maxFileSize: 15000000, maxFiles: 10 }));
   app.use('/uploads', express.static('./uploads'));
 
   app.useWebSocketAdapter(new WsAdapter(app));
-  await app.listen(process.env.PORT_API ?? 3000);
+  await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
