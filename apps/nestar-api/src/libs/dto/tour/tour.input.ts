@@ -124,4 +124,18 @@ export class AgentToursInquiry {
     @IsOptional()
     @Field(() => Direction, { nullable: true })
     direction?: Direction;
+
+    @IsOptional()
+    @Field(() => String, { nullable: true })
+    tourLocation?: string;
+
+    @IsOptional()
+    @Min(0)
+    @Field(() => Int, { nullable: true })
+    minPrice?: number;
+
+    @IsOptional()
+    @Min(0)
+    @Field(() => Int, { nullable: true })
+    maxPrice?: number;
 }

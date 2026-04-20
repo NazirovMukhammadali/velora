@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Types } from 'mongoose';
 import { Tour, Tours } from '../../libs/dto/tour/tour';
 import { AgentToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
@@ -35,5 +35,12 @@ export class ToursResolver {
         @Args('input') input: AgentToursInquiry,
     ): Promise<Tours> {
         return await this.toursService.getAgentTours(agentId, input);
+    }
+
+    @Query(() => Tour)
+    public async getTourDetail(
+        @Args('tourId', { type: () => ID }) tourId: string,
+    ): Promise<Tour> {
+        return await this.toursService.getTourDetail(tourId);
     }
 }

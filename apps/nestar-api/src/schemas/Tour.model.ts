@@ -76,6 +76,6 @@ const TourSchema = new Schema(
 );
 
 TourSchema.index({ memberId: 1, tourStatus: 1, createdAt: -1 });
-TourSchema.index({ tourLocation: 1, tourPrice: 1 });
+TourSchema.index({ tourStatus: 1, tourLocation: 1, tourPrice: 1 });
 
 export default TourSchema;
