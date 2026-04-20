@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
 import { T } from '../../libs/types/common';
 import { Tour, Tours } from '../../libs/dto/tour/tour';
-import { TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
+import { AgentToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { TourStatus } from '../../libs/enums/tour.enum';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -43,6 +43,31 @@ export class ToursService {
             const regex = new RegExp(search.text, 'i');
             match.$or = [{ tourTitle: regex }, { tourLocation: regex }, { tourDesc: regex }];
         }
+
+        const pipeline: PipelineStage[] = [
+            { $match: match },
+            { $sort: sort },
+            {
+                $facet: {
+                    list: [
+                        { $skip: (input.page - 1) * input.limit },
+                        { $limit: input.limit },
+                    ],
+                    metaCounter: [{ $count: 'total' }],
+                },
+            },
+        ];
+
+        const result = await this.tourModel.aggregate(pipeline).exec();
+        return result?.[0] ?? { list: [], metaCounter: [{ total: 0 }] };
+    }
+
+    public async getAgentTours(memberId: string, input: AgentToursInquiry): Promise<Tours> {
+        const match: T = {
+            memberId: shapeIntoMongoObjectId(memberId),
+            tourStatus: TourStatus.ACTIVE,
+        };
+        const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
         const pipeline: PipelineStage[] = [
             { $match: match },

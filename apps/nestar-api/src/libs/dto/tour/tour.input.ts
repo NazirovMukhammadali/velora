@@ -103,3 +103,25 @@ export class ToursInquiry {
     @Field(() => TourSearch)
     search: TourSearch;
 }
+
+@InputType()
+export class AgentToursInquiry {
+    @IsNotEmpty()
+    @Min(1)
+    @Field(() => Int)
+    page: number;
+
+    @IsNotEmpty()
+    @Min(1)
+    @Field(() => Int)
+    limit: number;
+
+    @IsOptional()
+    @IsIn(availableTourSorts)
+    @Field(() => String, { nullable: true })
+    sort?: string;
+
+    @IsOptional()
+    @Field(() => Direction, { nullable: true })
+    direction?: Direction;
+}
