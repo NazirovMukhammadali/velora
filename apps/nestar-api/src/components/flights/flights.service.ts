@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage } from 'mongoose';
 import { FlightsInquiry, FlightInput } from '../../libs/dto/flight/flight.input';
@@ -55,8 +55,6 @@ export class FlightsService {
         ];
 
         const result = await this.flightModel.aggregate(pipeline).exec();
-        if (!result?.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-
-        return result[0];
+        return result?.[0] ?? { list: [], metaCounter: [{ total: 0 }] };
     }
 }
