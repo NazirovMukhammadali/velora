@@ -10,6 +10,7 @@ import { BoardArticleModule } from './board-article/board-article.module';
 import { FlightsModule } from './flights/flights.module';
 import { HotelsModule } from './hotels/hotels.module';
 import { RentcarModule } from './rentcar/rentcar.module';
+import { ToursModule } from './tours/tours.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RentcarModule } from './rentcar/rentcar.module';
     ViewModule,
     FollowModule,
     FlightsModule,
+    ToursModule,
     HotelsModule,
     RentcarModule,
   ],
