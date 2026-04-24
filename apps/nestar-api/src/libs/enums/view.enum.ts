@@ -5,6 +5,7 @@ export enum ViewGroup {
 	ARTICLE = 'ARTICLE',
 	PROPERTY = 'PROPERTY',
 	HOTEL = 'HOTEL',
+	FLIGHT = 'FLIGHT',
 	TOUR = 'TOUR',
 }
 registerEnumType(ViewGroup, {

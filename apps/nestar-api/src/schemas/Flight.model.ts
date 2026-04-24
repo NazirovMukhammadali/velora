@@ -54,6 +54,26 @@ const FlightSchema = new Schema(
             enum: FlightStatus,
             default: FlightStatus.ACTIVE,
         },
+
+        flightLikes: {
+            type: Number,
+            default: 0,
+        },
+
+        flightViews: {
+            type: Number,
+            default: 0,
+        },
+
+        flightComments: {
+            type: Number,
+            default: 0,
+        },
+
+        flightRank: {
+            type: Number,
+            default: 0,
+        },
     },
     { timestamps: true, collection: 'flights' },
 );

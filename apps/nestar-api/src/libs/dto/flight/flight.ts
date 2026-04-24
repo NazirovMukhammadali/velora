@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
 import { FlightCabinClass, FlightStatus } from '../../enums/flight.enum';
+import { MeLiked } from '../like/like';
 import { TotalCounter } from '../member/member';
 
 @ObjectType()
@@ -38,11 +39,26 @@ export class Flight {
     @Field(() => FlightStatus)
     flightStatus: FlightStatus;
 
+    @Field(() => Int)
+    flightLikes: number;
+
+    @Field(() => Int)
+    flightViews: number;
+
+    @Field(() => Int)
+    flightComments: number;
+
+    @Field(() => Int)
+    flightRank: number;
+
     @Field(() => Date)
     createdAt: Date;
 
     @Field(() => Date)
     updatedAt: Date;
+
+    @Field(() => [MeLiked], { nullable: true })
+    meLiked?: MeLiked[];
 }
 
 @ObjectType()
