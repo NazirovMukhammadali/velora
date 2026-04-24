@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { LikeModule } from '../like/like.module';
+import { MemberModule } from '../member/member.module';
 import TourSchema from '../../schemas/Tour.model';
 import { ToursResolver } from './tours.resolver';
 import { ToursService } from './tours.service';
@@ -7,6 +9,8 @@ import { ToursService } from './tours.service';
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: 'Tour', schema: TourSchema }]),
+        LikeModule,
+        MemberModule,
     ],
     providers: [ToursResolver, ToursService],
 })

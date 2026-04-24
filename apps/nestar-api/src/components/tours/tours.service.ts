@@ -1,17 +1,23 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage, Types } from 'mongoose';
+import { LikeInput } from '../../libs/dto/like/like.input';
+import { LikeGroup } from '../../libs/enums/like.enum';
 import { T } from '../../libs/types/common';
 import { Tour, Tours } from '../../libs/dto/tour/tour';
 import { AgentToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { TourStatus } from '../../libs/enums/tour.enum';
+import { LikeService } from '../like/like.service';
+import { MemberService } from '../member/member.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class ToursService {
     constructor(
         @InjectModel('Tour') private readonly tourModel: Model<Tour>,
+        private readonly memberService: MemberService,
+        private readonly likeService: LikeService,
     ) { }
 
     public async createTour(input: TourInput): Promise<Tour> {
@@ -96,7 +102,7 @@ export class ToursService {
         return result?.[0] ?? { list: [], metaCounter: [{ total: 0 }] };
     }
 
-    public async getTourDetail(tourId: string): Promise<Tour> {
+    public async getTourDetail(memberId: Types.ObjectId | null, tourId: string): Promise<Tour> {
         this.validateObjectId(tourId, 'tourId');
 
         const result = await this.tourModel
@@ -108,7 +114,48 @@ export class ToursService {
             .exec();
 
         if (!result) throw new NotFoundException(Message.NO_DATA_FOUND);
-        return result as Tour;
+        const targetTour = result as Tour;
+        targetTour.memberData = await this.memberService.getMember(null, targetTour.memberId);
+
+        if (memberId) {
+            const likeInput: LikeInput = {
+                memberId,
+                likeRefId: shapeIntoMongoObjectId(tourId),
+                likeGroup: LikeGroup.TOUR,
+            };
+            targetTour.meLiked = await this.likeService.checkLikeExistence(likeInput);
+        }
+
+        return targetTour;
+    }
+
+    public async likeTargetTour(memberId: Types.ObjectId, tourId: Types.ObjectId): Promise<Tour> {
+        const targetTour = await this.tourModel
+            .findOne({
+                _id: tourId,
+                tourStatus: TourStatus.ACTIVE,
+            })
+            .exec();
+
+        if (!targetTour) throw new NotFoundException(Message.NO_DATA_FOUND);
+
+        const input: LikeInput = {
+            memberId,
+            likeRefId: tourId,
+            likeGroup: LikeGroup.TOUR,
+        };
+        const modifier = await this.likeService.toggleLike(input);
+
+        const updatedTour = await this.tourModel
+            .findByIdAndUpdate(
+                tourId,
+                { $inc: { tourLikes: modifier } },
+                { new: true },
+            )
+            .exec();
+
+        if (!updatedTour) throw new BadRequestException(Message.SOMETHING_WENT_WRONG);
+        return updatedTour;
     }
 
     private validateObjectId(id: string, key: string): void {
