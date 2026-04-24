@@ -4,7 +4,8 @@ import { Types } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Flight, Flights } from '../../libs/dto/flight/flight';
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
-import { FlightsInquiry, FlightInput } from '../../libs/dto/flight/flight.input';
+import { AllFlightsInquiry, FlightsInquiry, FlightInput } from '../../libs/dto/flight/flight.input';
+import { FlightUpdate } from '../../libs/dto/flight/flight.update';
 import { FlightsService } from './flights.service';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -54,5 +55,33 @@ export class FlightsResolver {
         @AuthMember('_id') memberId: Types.ObjectId,
     ): Promise<Flights> {
         return await this.flightsService.getFavoriteFlights(memberId, input);
+    }
+
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Query(() => Flights)
+    public async getAllFlightsByAdmin(
+        @Args('input') input: AllFlightsInquiry,
+    ): Promise<Flights> {
+        return await this.flightsService.getAllFlightsByAdmin(input);
+    }
+
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Mutation(() => Flight)
+    public async updateFlightByAdmin(
+        @Args('input') input: FlightUpdate,
+    ): Promise<Flight> {
+        input._id = shapeIntoMongoObjectId(input._id);
+        return await this.flightsService.updateFlightByAdmin(input);
+    }
+
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Mutation(() => Flight)
+    public async removeFlightByAdmin(
+        @Args('flightId', { type: () => ID }) flightId: string,
+    ): Promise<Flight> {
+        return await this.flightsService.removeFlightByAdmin(shapeIntoMongoObjectId(flightId));
     }
 }

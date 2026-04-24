@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage, Types } from 'mongoose';
-import { FlightsInquiry, FlightInput } from '../../libs/dto/flight/flight.input';
+import { AllFlightsInquiry, FlightsInquiry, FlightInput } from '../../libs/dto/flight/flight.input';
+import { FlightUpdate } from '../../libs/dto/flight/flight.update';
 import { Flight, Flights } from '../../libs/dto/flight/flight';
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
@@ -22,6 +23,7 @@ export class FlightsService {
     ) { }
 
     public async createFlight(input: FlightInput): Promise<Flight> {
+        this.validateFlightBusinessRules(input);
         try {
             return await this.flightModel.create({
                 ...input,
@@ -36,11 +38,18 @@ export class FlightsService {
     public async getFlights(input: FlightsInquiry): Promise<Flights> {
         const match: Record<string, any> = { flightStatus: FlightStatus.ACTIVE };
         const sort = { [input?.sort ?? 'departureTime']: input?.direction ?? Direction.ASC };
-        const { departureAirport, arrivalAirport, departureDate, cabinClass } = input.search;
+        const { departureAirport, arrivalAirport, departureDate, cabinClass, airline, minPrice, maxPrice } =
+            input.search ?? {};
 
         if (departureAirport) match.departureAirport = departureAirport;
         if (arrivalAirport) match.arrivalAirport = arrivalAirport;
         if (cabinClass) match.cabinClass = cabinClass;
+        if (airline) match.airline = airline;
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            match.basePrice = {};
+            if (minPrice !== undefined) match.basePrice.$gte = minPrice;
+            if (maxPrice !== undefined) match.basePrice.$lte = maxPrice;
+        }
         if (departureDate) {
             const dayStart = new Date(departureDate);
             dayStart.setHours(0, 0, 0, 0);
@@ -73,7 +82,7 @@ export class FlightsService {
         const result = await this.flightModel
             .findOne({
                 _id: shapeIntoMongoObjectId(flightId),
-                flightStatus: { $ne: FlightStatus.CANCELLED },
+                flightStatus: { $ne: FlightStatus.DELETE },
             })
             .lean()
             .exec();
@@ -139,6 +148,102 @@ export class FlightsService {
 
     public async getFavoriteFlights(memberId: Types.ObjectId, input: OrdinaryInquiry): Promise<Flights> {
         return await this.likeService.getFavoriteFlights(memberId, input);
+    }
+
+    public async getAllFlightsByAdmin(input: AllFlightsInquiry): Promise<Flights> {
+        const { page, limit, search } = input;
+        const match: Record<string, any> = {};
+        const sort = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+        if (search?.departureAirport) match.departureAirport = search.departureAirport;
+        if (search?.arrivalAirport) match.arrivalAirport = search.arrivalAirport;
+        if (search?.airline) match.airline = search.airline;
+        if (search?.flightStatus) match.flightStatus = search.flightStatus;
+        if (search?.minPrice !== undefined || search?.maxPrice !== undefined) {
+            match.basePrice = {};
+            if (search.minPrice !== undefined) match.basePrice.$gte = search.minPrice;
+            if (search.maxPrice !== undefined) match.basePrice.$lte = search.maxPrice;
+        }
+
+        const result = await this.flightModel
+            .aggregate([
+                { $match: match },
+                { $sort: sort },
+                {
+                    $facet: {
+                        list: [
+                            { $skip: (page - 1) * limit },
+                            { $limit: limit },
+                        ],
+                        metaCounter: [{ $count: 'total' }],
+                    },
+                },
+            ])
+            .exec();
+
+        return result?.[0] ?? { list: [], metaCounter: [{ total: 0 }] };
+    }
+
+    public async updateFlightByAdmin(input: FlightUpdate): Promise<Flight> {
+        if (input.flightStatus === FlightStatus.DELETE) {
+            throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+        }
+
+        const existing = await this.flightModel
+            .findOne({
+                _id: input._id,
+                flightStatus: { $ne: FlightStatus.DELETE },
+            })
+            .exec();
+        if (!existing) throw new NotFoundException(Message.NO_DATA_FOUND);
+
+        const merged = {
+            departureAirport: input.departureAirport ?? existing.departureAirport,
+            arrivalAirport: input.arrivalAirport ?? existing.arrivalAirport,
+            departureTime: input.departureTime ?? existing.departureTime,
+            arrivalTime: input.arrivalTime ?? existing.arrivalTime,
+        };
+        this.validateFlightBusinessRules(merged);
+
+        const updated = await this.flightModel
+            .findOneAndUpdate(
+                { _id: input._id, flightStatus: { $ne: FlightStatus.DELETE } },
+                input,
+                { new: true },
+            )
+            .exec();
+        if (!updated) throw new BadRequestException(Message.UPDATE_FAILED);
+
+        return updated;
+    }
+
+    public async removeFlightByAdmin(flightId: Types.ObjectId): Promise<Flight> {
+        const removed = await this.flightModel
+            .findOneAndUpdate(
+                { _id: flightId, flightStatus: { $ne: FlightStatus.DELETE } },
+                { flightStatus: FlightStatus.DELETE },
+                { new: true },
+            )
+            .exec();
+        if (!removed) throw new BadRequestException(Message.REMOVE_FAILED);
+
+        return removed;
+    }
+
+    private validateFlightBusinessRules(input: {
+        departureAirport?: string;
+        arrivalAirport?: string;
+        departureTime?: Date;
+        arrivalTime?: Date;
+    }): void {
+        if (input.departureAirport && input.arrivalAirport && input.departureAirport === input.arrivalAirport) {
+            throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+        }
+        if (input.departureTime && input.arrivalTime) {
+            const departure = new Date(input.departureTime).getTime();
+            const arrival = new Date(input.arrivalTime).getTime();
+            if (arrival <= departure) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+        }
     }
 
     private validateObjectId(id: string, key: string): void {

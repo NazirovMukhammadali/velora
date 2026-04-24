@@ -3,6 +3,7 @@ import { registerEnumType } from '@nestjs/graphql';
 export enum FlightStatus {
     ACTIVE = 'ACTIVE',
     CANCELLED = 'CANCELLED',
+    DELETE = 'DELETE',
 }
 registerEnumType(FlightStatus, {
     name: 'FlightStatus',
