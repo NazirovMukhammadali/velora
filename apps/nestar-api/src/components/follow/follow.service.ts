@@ -5,7 +5,7 @@ import { Follower, Followers, Following, Followings } from '../../libs/dto/follo
 import { MemberService } from '../member/member.service';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { Member } from '../../libs/dto/member/member';
-import { MESSAGES } from '@nestjs/core/constants';
+import { MemberType } from '../../libs/enums/member.enum';
 import { FollowInquiry } from '../../libs/dto/follow/follow.input';
 import { T } from '../../libs/types/common';
 import {
@@ -23,13 +23,24 @@ export class FollowService {
     ) { }
 
     public async subscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
-        console.log(followerId, followingId);
         if (followerId.toString() === followingId.toString()) {
             throw new InternalServerErrorException(Message.SELF_SUBSCRIPTION_DENIED);
         }
+
+        const followerMember: Member = await this.memberService.getMember(null, followerId);
         const targetMember: Member = await this.memberService.getMember(null, followingId);
 
-        if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+        if (!followerMember || !targetMember) {
+            throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+        }
+        if (followerMember.memberType !== MemberType.USER || targetMember.memberType !== MemberType.AGENT) {
+            throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+        }
+
+        const duplicate = await this.followModel
+            .findOne({ followingId: followingId, followerId: followerId })
+            .exec();
+        if (duplicate) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 
         const result = await this.registerSubscription(followerId, followingId);
 
@@ -93,8 +104,6 @@ export class FollowService {
             followerId: search?.followerId,
         };
 
-        console.log('match: ', match);
-
         const result = await this.followModel
             .aggregate([
                 { $match: match },
@@ -134,8 +143,6 @@ export class FollowService {
         const match: T = {
             followingId: search?.followingId,
         };
-
-        console.log('match', match);
 
         const result = await this.followModel
             .aggregate([
