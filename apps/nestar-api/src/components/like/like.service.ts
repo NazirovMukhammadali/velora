@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Like, MeLiked } from '../../libs/dto/like/like';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { T } from '../../libs/types/common';
@@ -9,6 +9,7 @@ import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { Properties } from '../../libs/dto/property/property';
 import { lookupFavorite } from '../../libs/config';
+import { Tours } from '../../libs/dto/tour/tour';
 
 @Injectable()
 export class LikeService {
@@ -45,7 +46,7 @@ export class LikeService {
         return result ? [{ memberId: memberId, likeRefId: likeRefId, myFavorite: true }] : [];
     }
 
-    public async getFavoriteProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+    public async getFavoriteProperties(memberId: Types.ObjectId, input: OrdinaryInquiry): Promise<Properties> {
         const { page, limit } = input;
         const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId }; // distraction Match orqaliy
 
@@ -80,6 +81,49 @@ export class LikeService {
         const result: Properties = { list: [], metaCounter: data[0].metaCounter };
         result.list = data[0].list.map((ele) => ele.favoriteProperty); // iteration qilyapmiz MAP orqaliy
 
+        return result;
+    }
+
+    public async getFavoriteTours(memberId: Types.ObjectId, input: OrdinaryInquiry): Promise<Tours> {
+        const { page, limit } = input;
+        const match: T = { likeGroup: LikeGroup.TOUR, memberId: memberId };
+
+        const data: T[] = await this.likeModel
+            .aggregate([
+                { $match: match },
+                { $sort: { updatedAt: -1 } },
+                {
+                    $lookup: {
+                        from: 'tours',
+                        localField: 'likeRefId',
+                        foreignField: '_id',
+                        as: 'favoriteTour',
+                    },
+                },
+                { $unwind: '$favoriteTour' },
+                {
+                    $facet: {
+                        list: [
+                            { $skip: (page - 1) * limit },
+                            { $limit: limit },
+                            {
+                                $lookup: {
+                                    from: 'members',
+                                    localField: 'favoriteTour.memberId',
+                                    foreignField: '_id',
+                                    as: 'favoriteTour.memberData',
+                                },
+                            },
+                            { $unwind: '$favoriteTour.memberData' },
+                        ],
+                        metaCounter: [{ $count: 'total' }],
+                    },
+                },
+            ])
+            .exec();
+
+        const result: Tours = { list: [], metaCounter: data?.[0]?.metaCounter ?? [{ total: 0 }] };
+        result.list = (data?.[0]?.list ?? []).map((ele) => ele.favoriteTour);
         return result;
     }
 }

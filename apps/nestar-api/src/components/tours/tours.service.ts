@@ -2,14 +2,18 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage, Types } from 'mongoose';
 import { LikeInput } from '../../libs/dto/like/like.input';
+import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { T } from '../../libs/types/common';
 import { Tour, Tours } from '../../libs/dto/tour/tour';
-import { AgentToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
+import { AgentToursInquiry, AllToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
+import { TourUpdate } from '../../libs/dto/tour/tour.update';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { TourStatus } from '../../libs/enums/tour.enum';
+import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeService } from '../like/like.service';
 import { MemberService } from '../member/member.service';
+import { ViewService } from '../view/view.service';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
@@ -18,6 +22,7 @@ export class ToursService {
         @InjectModel('Tour') private readonly tourModel: Model<Tour>,
         private readonly memberService: MemberService,
         private readonly likeService: LikeService,
+        private readonly viewService: ViewService,
     ) { }
 
     public async createTour(input: TourInput): Promise<Tour> {
@@ -115,6 +120,26 @@ export class ToursService {
 
         if (!result) throw new NotFoundException(Message.NO_DATA_FOUND);
         const targetTour = result as Tour;
+
+        if (memberId) {
+            const viewInput = {
+                memberId: memberId as Types.ObjectId,
+                viewRefId: shapeIntoMongoObjectId(tourId),
+                viewGroup: ViewGroup.TOUR,
+            };
+            const newView = await this.viewService.recordView(viewInput);
+            if (newView) {
+                await this.tourModel
+                    .findByIdAndUpdate(
+                        shapeIntoMongoObjectId(tourId),
+                        { $inc: { tourViews: 1 } },
+                        { new: true },
+                    )
+                    .exec();
+                targetTour.tourViews++;
+            }
+        }
+
         targetTour.memberData = await this.memberService.getMember(null, targetTour.memberId);
 
         if (memberId) {
@@ -156,6 +181,91 @@ export class ToursService {
 
         if (!updatedTour) throw new BadRequestException(Message.SOMETHING_WENT_WRONG);
         return updatedTour;
+    }
+
+    public async getFavoriteTours(memberId: Types.ObjectId, input: OrdinaryInquiry): Promise<Tours> {
+        return await this.likeService.getFavoriteTours(memberId, input);
+    }
+
+    public async updateTour(memberId: Types.ObjectId, input: TourUpdate): Promise<Tour> {
+        const search: T = {
+            _id: input._id,
+            memberId,
+            tourStatus: { $ne: TourStatus.DELETE },
+        };
+        const result = await this.tourModel.findOneAndUpdate(search, input, { new: true }).exec();
+        if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
+
+        return result;
+    }
+
+    public async removeTour(memberId: Types.ObjectId, tourId: Types.ObjectId): Promise<Tour> {
+        const search: T = {
+            _id: tourId,
+            memberId,
+            tourStatus: { $ne: TourStatus.DELETE },
+        };
+
+        const result = await this.tourModel
+            .findOneAndUpdate(
+                search,
+                { tourStatus: TourStatus.DELETE },
+                { new: true },
+            )
+            .exec();
+        if (!result) throw new BadRequestException(Message.REMOVE_FAILED);
+
+        return result;
+    }
+
+    public async getAllToursByAdmin(input: AllToursInquiry): Promise<Tours> {
+        const { page, limit, search } = input;
+        const match: T = {};
+        const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+        if (search.tourStatus) match.tourStatus = search.tourStatus;
+        if (search.tourLocation) match.tourLocation = search.tourLocation;
+        if (search.memberId) match.memberId = shapeIntoMongoObjectId(search.memberId);
+
+        const result = await this.tourModel
+            .aggregate([
+                { $match: match },
+                { $sort: sort },
+                {
+                    $facet: {
+                        list: [
+                            { $skip: (page - 1) * limit },
+                            { $limit: limit },
+                        ],
+                        metaCounter: [{ $count: 'total' }],
+                    },
+                },
+            ])
+            .exec();
+
+        return result?.[0] ?? { list: [], metaCounter: [{ total: 0 }] };
+    }
+
+    public async updateTourByAdmin(input: TourUpdate): Promise<Tour> {
+        const search: T = {
+            _id: input._id,
+            tourStatus: { $ne: TourStatus.DELETE },
+        };
+        const result = await this.tourModel.findOneAndUpdate(search, input, { new: true }).exec();
+        if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
+
+        return result;
+    }
+
+    public async removeTourByAdmin(tourId: Types.ObjectId): Promise<Tour> {
+        const search: T = {
+            _id: tourId,
+            tourStatus: TourStatus.DELETE,
+        };
+        const result = await this.tourModel.findOneAndDelete(search).exec();
+        if (!result) throw new BadRequestException(Message.REMOVE_FAILED);
+
+        return result;
     }
 
     private validateObjectId(id: string, key: string): void {

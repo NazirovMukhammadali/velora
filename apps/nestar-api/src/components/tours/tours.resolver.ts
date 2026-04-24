@@ -2,8 +2,10 @@ import { UseGuards } from '@nestjs/common';
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Types } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Tour, Tours } from '../../libs/dto/tour/tour';
-import { AgentToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
+import { AgentToursInquiry, AllToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
+import { TourUpdate } from '../../libs/dto/tour/tour.update';
 import { MemberType } from '../../libs/enums/member.enum';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -25,6 +27,27 @@ export class ToursResolver {
     ): Promise<Tour> {
         input.memberId = memberId;
         return await this.toursService.createTour(input);
+    }
+
+    @Roles(MemberType.AGENT)
+    @UseGuards(RolesGuard)
+    @Mutation(() => Tour)
+    public async updateTour(
+        @Args('input') input: TourUpdate,
+        @AuthMember('_id') memberId: Types.ObjectId,
+    ): Promise<Tour> {
+        input._id = shapeIntoMongoObjectId(input._id);
+        return await this.toursService.updateTour(memberId, input);
+    }
+
+    @Roles(MemberType.AGENT)
+    @UseGuards(RolesGuard)
+    @Mutation(() => Tour)
+    public async removeTour(
+        @Args('tourId', { type: () => ID }) tourId: string,
+        @AuthMember('_id') memberId: Types.ObjectId,
+    ): Promise<Tour> {
+        return await this.toursService.removeTour(memberId, shapeIntoMongoObjectId(tourId));
     }
 
     @Query(() => Tours)
@@ -56,5 +79,42 @@ export class ToursResolver {
         @AuthMember('_id') memberId: Types.ObjectId,
     ): Promise<Tour> {
         return await this.toursService.likeTargetTour(memberId, shapeIntoMongoObjectId(tourId));
+    }
+
+    @UseGuards(AuthGuard)
+    @Query(() => Tours)
+    public async getFavoriteTours(
+        @Args('input') input: OrdinaryInquiry,
+        @AuthMember('_id') memberId: Types.ObjectId,
+    ): Promise<Tours> {
+        return await this.toursService.getFavoriteTours(memberId, input);
+    }
+
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Query(() => Tours)
+    public async getAllToursByAdmin(
+        @Args('input') input: AllToursInquiry,
+    ): Promise<Tours> {
+        return await this.toursService.getAllToursByAdmin(input);
+    }
+
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Mutation(() => Tour)
+    public async updateTourByAdmin(
+        @Args('input') input: TourUpdate,
+    ): Promise<Tour> {
+        input._id = shapeIntoMongoObjectId(input._id);
+        return await this.toursService.updateTourByAdmin(input);
+    }
+
+    @Roles(MemberType.ADMIN)
+    @UseGuards(RolesGuard)
+    @Mutation(() => Tour)
+    public async removeTourByAdmin(
+        @Args('tourId', { type: () => ID }) tourId: string,
+    ): Promise<Tour> {
+        return await this.toursService.removeTourByAdmin(shapeIntoMongoObjectId(tourId));
     }
 }

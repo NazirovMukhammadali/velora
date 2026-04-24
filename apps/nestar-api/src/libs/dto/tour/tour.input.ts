@@ -139,3 +139,44 @@ export class AgentToursInquiry {
     @Field(() => Int, { nullable: true })
     maxPrice?: number;
 }
+
+@InputType()
+class AllToursSearch {
+    @IsOptional()
+    @Field(() => TourStatus, { nullable: true })
+    tourStatus?: TourStatus;
+
+    @IsOptional()
+    @Field(() => String, { nullable: true })
+    tourLocation?: string;
+
+    @IsOptional()
+    @Field(() => String, { nullable: true })
+    memberId?: Types.ObjectId;
+}
+
+@InputType()
+export class AllToursInquiry {
+    @IsNotEmpty()
+    @Min(1)
+    @Field(() => Int)
+    page: number;
+
+    @IsNotEmpty()
+    @Min(1)
+    @Field(() => Int)
+    limit: number;
+
+    @IsOptional()
+    @IsIn(availableTourSorts)
+    @Field(() => String, { nullable: true })
+    sort?: string;
+
+    @IsOptional()
+    @Field(() => Direction, { nullable: true })
+    direction?: Direction;
+
+    @IsNotEmpty()
+    @Field(() => AllToursSearch)
+    search: AllToursSearch;
+}
