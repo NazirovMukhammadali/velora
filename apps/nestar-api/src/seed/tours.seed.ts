@@ -21,6 +21,7 @@ type TourSeed = {
     tourPrice: number;
     tourImages: string[];
     agentNick: string;
+    tourSoldCount: number;
 };
 
 const loadLocalEnv = (): void => {
@@ -84,18 +85,18 @@ const agentSeeds: AgentSeed[] = [
 ];
 
 const tourSeeds: TourSeed[] = [
-    { tourTitle: 'VELORA Seed: Seoul City Lights', tourLocation: 'Seoul', tourDays: 4, tourPrice: 420, tourImages: ['https://images.unsplash.com/photo-1535189043414-47a3c49a0bed?w=1200'], agentNick: 'velora_agent_seoul' },
-    { tourTitle: 'VELORA Seed: Seoul Food & Culture Weekend', tourLocation: 'Seoul', tourDays: 3, tourPrice: 310, tourImages: ['https://images.unsplash.com/photo-1549692520-acc6669e2f0c?w=1200'], agentNick: 'velora_agent_seoul' },
-    { tourTitle: 'VELORA Seed: Tokyo Modern Explorer', tourLocation: 'Tokyo', tourDays: 5, tourPrice: 690, tourImages: ['https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200'], agentNick: 'velora_agent_tokyo' },
-    { tourTitle: 'VELORA Seed: Tokyo Anime Streets', tourLocation: 'Tokyo', tourDays: 3, tourPrice: 370, tourImages: ['https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1200'], agentNick: 'velora_agent_tokyo' },
-    { tourTitle: 'VELORA Seed: Tashkent Heritage Highlights', tourLocation: 'Tashkent', tourDays: 2, tourPrice: 180, tourImages: ['https://images.unsplash.com/photo-1706264469965-31fd50be5dfc?w=1200'], agentNick: 'velora_agent_tashkent' },
-    { tourTitle: 'VELORA Seed: Samarkand & Tashkent Combo', tourLocation: 'Tashkent', tourDays: 5, tourPrice: 520, tourImages: ['https://images.unsplash.com/photo-1601654253194-260e0b6984f9?w=1200'], agentNick: 'velora_agent_tashkent' },
-    { tourTitle: 'VELORA Seed: Dubai Desert Adventure', tourLocation: 'Dubai', tourDays: 3, tourPrice: 460, tourImages: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200'], agentNick: 'velora_agent_dubai' },
-    { tourTitle: 'VELORA Seed: Dubai Luxury Escape', tourLocation: 'Dubai', tourDays: 4, tourPrice: 980, tourImages: ['https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200'], agentNick: 'velora_agent_dubai' },
-    { tourTitle: 'VELORA Seed: Bangkok Street Life Tour', tourLocation: 'Bangkok', tourDays: 4, tourPrice: 340, tourImages: ['https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200'], agentNick: 'velora_agent_tokyo' },
-    { tourTitle: 'VELORA Seed: Istanbul Bosphorus Journey', tourLocation: 'Istanbul', tourDays: 4, tourPrice: 430, tourImages: ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200'], agentNick: 'velora_agent_seoul' },
-    { tourTitle: 'VELORA Seed: Paris Art & Café Days', tourLocation: 'Paris', tourDays: 5, tourPrice: 860, tourImages: ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200'], agentNick: 'velora_agent_dubai' },
-    { tourTitle: 'VELORA Seed: Cappadocia Balloon Morning', tourLocation: 'Cappadocia', tourDays: 2, tourPrice: 390, tourImages: ['https://images.unsplash.com/photo-1645027820616-64fba26489ee?w=1200'], agentNick: 'velora_agent_seoul' },
+    { tourTitle: 'VELORA Seed: Seoul City Lights', tourLocation: 'Seoul', tourDays: 4, tourPrice: 420, tourImages: ['https://images.unsplash.com/photo-1535189043414-47a3c49a0bed?w=1200'], agentNick: 'velora_agent_seoul', tourSoldCount: 94 },
+    { tourTitle: 'VELORA Seed: Seoul Food & Culture Weekend', tourLocation: 'Seoul', tourDays: 3, tourPrice: 310, tourImages: ['https://images.unsplash.com/photo-1549692520-acc6669e2f0c?w=1200'], agentNick: 'velora_agent_seoul', tourSoldCount: 61 },
+    { tourTitle: 'VELORA Seed: Tokyo Modern Explorer', tourLocation: 'Tokyo', tourDays: 5, tourPrice: 690, tourImages: ['https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200'], agentNick: 'velora_agent_tokyo', tourSoldCount: 88 },
+    { tourTitle: 'VELORA Seed: Tokyo Anime Streets', tourLocation: 'Tokyo', tourDays: 3, tourPrice: 370, tourImages: ['https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1200'], agentNick: 'velora_agent_tokyo', tourSoldCount: 73 },
+    { tourTitle: 'VELORA Seed: Tashkent Heritage Highlights', tourLocation: 'Tashkent', tourDays: 2, tourPrice: 180, tourImages: ['https://images.unsplash.com/photo-1706264469965-31fd50be5dfc?w=1200'], agentNick: 'velora_agent_tashkent', tourSoldCount: 120 },
+    { tourTitle: 'VELORA Seed: Samarkand & Tashkent Combo', tourLocation: 'Tashkent', tourDays: 5, tourPrice: 520, tourImages: ['https://images.unsplash.com/photo-1601654253194-260e0b6984f9?w=1200'], agentNick: 'velora_agent_tashkent', tourSoldCount: 49 },
+    { tourTitle: 'VELORA Seed: Dubai Desert Adventure', tourLocation: 'Dubai', tourDays: 3, tourPrice: 460, tourImages: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200'], agentNick: 'velora_agent_dubai', tourSoldCount: 115 },
+    { tourTitle: 'VELORA Seed: Dubai Luxury Escape', tourLocation: 'Dubai', tourDays: 4, tourPrice: 980, tourImages: ['https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200'], agentNick: 'velora_agent_dubai', tourSoldCount: 42 },
+    { tourTitle: 'VELORA Seed: Bangkok Street Life Tour', tourLocation: 'Bangkok', tourDays: 4, tourPrice: 340, tourImages: ['https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200'], agentNick: 'velora_agent_tokyo', tourSoldCount: 85 },
+    { tourTitle: 'VELORA Seed: Istanbul Bosphorus Journey', tourLocation: 'Istanbul', tourDays: 4, tourPrice: 430, tourImages: ['https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200'], agentNick: 'velora_agent_seoul', tourSoldCount: 67 },
+    { tourTitle: 'VELORA Seed: Paris Art & Café Days', tourLocation: 'Paris', tourDays: 5, tourPrice: 860, tourImages: ['https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200'], agentNick: 'velora_agent_dubai', tourSoldCount: 39 },
+    { tourTitle: 'VELORA Seed: Cappadocia Balloon Morning', tourLocation: 'Cappadocia', tourDays: 2, tourPrice: 390, tourImages: ['https://images.unsplash.com/photo-1645027820616-64fba26489ee?w=1200'], agentNick: 'velora_agent_seoul', tourSoldCount: 76 },
 ];
 
 const ensureAgents = async (memberModel: mongoose.Model<any>): Promise<Map<string, Types.ObjectId>> => {
@@ -150,6 +151,7 @@ const seedTours = async (): Promise<void> => {
             tourImages: tour.tourImages,
             tourDesc: `${tour.tourLocation} curated package by ${tour.agentNick}`,
             tourStatus: TourStatus.ACTIVE,
+            tourSoldCount: tour.tourSoldCount,
             memberId: agentId,
         };
     });

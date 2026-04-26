@@ -66,6 +66,12 @@ const TourSchema = new Schema(
             default: 0,
         },
 
+        tourSoldCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
         memberId: {
             type: Schema.Types.ObjectId,
             required: true,
@@ -77,5 +83,6 @@ const TourSchema = new Schema(
 
 TourSchema.index({ memberId: 1, tourStatus: 1, createdAt: -1 });
 TourSchema.index({ tourStatus: 1, tourLocation: 1, tourPrice: 1 });
+TourSchema.index({ tourStatus: 1, tourSoldCount: -1, createdAt: -1 });
 
 export default TourSchema;

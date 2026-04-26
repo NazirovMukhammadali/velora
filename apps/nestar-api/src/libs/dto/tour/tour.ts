@@ -45,6 +45,9 @@ export class Tour {
     @Field(() => Int)
     tourRank: number;
 
+    @Field(() => Int)
+    tourSoldCount: number;
+
     @Field(() => String)
     memberId: ObjectId;
 

@@ -9,6 +9,7 @@ import { Tour, Tours } from '../../libs/dto/tour/tour';
 import { AgentToursInquiry, AllToursInquiry, PopularToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
 import { TourUpdate } from '../../libs/dto/tour/tour.update';
 import { Direction, Message } from '../../libs/enums/common.enum';
+import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
 import { TourStatus } from '../../libs/enums/tour.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeService } from '../like/like.service';
@@ -30,6 +31,7 @@ export class ToursService {
             return await this.tourModel.create({
                 ...input,
                 tourStatus: input.tourStatus ?? TourStatus.ACTIVE,
+                tourSoldCount: 0,
             });
         } catch (err) {
             console.log('Error, createTour:', err.message);
@@ -74,13 +76,16 @@ export class ToursService {
     }
 
     public async getPopularTours(input: PopularToursInquiry): Promise<Tours> {
-        const match: T = { tourStatus: TourStatus.ACTIVE };
+        const match: T = {
+            tourStatus: TourStatus.ACTIVE,
+            tourSoldCount: { $gt: 0 },
+        };
         if (input.tourLocation) match.tourLocation = input.tourLocation;
 
         const result = await this.tourModel
             .aggregate([
                 { $match: match },
-                { $sort: { tourLikes: -1, tourViews: -1, createdAt: -1 } },
+                { $sort: { tourSoldCount: -1, tourLikes: -1, tourViews: -1, createdAt: -1 } },
                 {
                     $facet: {
                         list: [
@@ -98,9 +103,14 @@ export class ToursService {
 
     public async getAgentTours(memberId: string, input: AgentToursInquiry): Promise<Tours> {
         this.validateObjectId(memberId, 'agentId');
+        const targetAgentId = shapeIntoMongoObjectId(memberId);
+        const targetAgent = await this.memberService.getMember(null, targetAgentId);
+        if (targetAgent.memberType !== MemberType.AGENT || targetAgent.memberStatus !== MemberStatus.ACTIVE) {
+            throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+        }
 
         const match: T = {
-            memberId: shapeIntoMongoObjectId(memberId),
+            memberId: targetAgentId,
             tourStatus: TourStatus.ACTIVE,
         };
         const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };

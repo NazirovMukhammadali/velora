@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import { Direction } from '../../enums/common.enum';
 import { TourStatus } from '../../enums/tour.enum';
 
-const availableTourSorts = ['createdAt', 'tourPrice', 'tourLikes', 'tourViews', 'tourRank'];
+const availableTourSorts = ['createdAt', 'tourPrice', 'tourLikes', 'tourViews', 'tourRank', 'tourSoldCount'];
 
 @InputType()
 export class TourInput {
