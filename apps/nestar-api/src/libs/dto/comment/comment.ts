@@ -17,6 +17,9 @@ export class Comment {
 	@Field(() => String)
 	commentContent: string;
 
+	@Field(() => Int)
+	commentRating: number;
+
 	@Field(() => String)
 	commentRefId: Types.ObjectId;
 
@@ -42,4 +45,16 @@ export class Comments {
 
 	@Field(() => [TotalCounter], { nullable: true })
 	metaCounter: TotalCounter[];
+}
+
+@ObjectType()
+export class AgentReviewStats {
+	@Field(() => Int)
+	totalReviews: number;
+
+	@Field(() => Number)
+	averageRating: number;
+
+	@Field(() => Boolean)
+	canWriteReview: boolean;
 }

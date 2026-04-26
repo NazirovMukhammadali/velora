@@ -20,6 +20,13 @@ const CommentSchema = new Schema(
 			required: true,
 		},
 
+		commentRating: {
+			type: Number,
+			required: true,
+			min: 1,
+			max: 5,
+		},
+
 		commentRefId: {
 			type: Schema.Types.ObjectId,
 			required: true,
@@ -32,5 +39,8 @@ const CommentSchema = new Schema(
 	},
 	{ timestamps: true, collection: 'comments' },
 );
+
+CommentSchema.index({ commentRefId: 1, commentStatus: 1, createdAt: -1 });
+CommentSchema.index({ commentRefId: 1, commentStatus: 1, commentRating: -1 });
 
 export default CommentSchema;

@@ -5,7 +5,7 @@ import { CommentInput, CommentsInquiry } from "../../libs/dto/comment/comment.in
 import { AuthMember } from "../auth/decorators/authMember.decorator";
 import { Types } from "mongoose";
 import { CommentService } from "./comment.service";
-import { Comment, Comments } from "../../libs/dto/comment/comment";
+import { AgentReviewStats, Comment, Comments } from "../../libs/dto/comment/comment";
 import { CommentUpdate } from "../../libs/dto/comment/comment.update";
 import { shapeIntoMongoObjectId } from "../../libs/config";
 import { WithoutGuard } from "../auth/guards/without.guard";
@@ -40,12 +40,21 @@ export class CommentResolver {
     @Query(() => Comments)
     public async getComments(
         @Args("input") input: CommentsInquiry,
-        @AuthMember("_id") memberId: Types.ObjectId
+        @AuthMember("_id") memberId: Types.ObjectId | null
     ): Promise<Comments> {
         input.search.commentRefId = shapeIntoMongoObjectId(
             input.search.commentRefId
         );
         return await this.commentService.getComments(memberId, input);
+    }
+
+    @UseGuards(WithoutGuard)
+    @Query(() => AgentReviewStats)
+    public async getAgentReviewStats(
+        @Args("agentId") agentId: string,
+        @AuthMember("_id") memberId: Types.ObjectId | null
+    ): Promise<AgentReviewStats> {
+        return await this.commentService.getAgentReviewStats(memberId, shapeIntoMongoObjectId(agentId));
     }
 
 

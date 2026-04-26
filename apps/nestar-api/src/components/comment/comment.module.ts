@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import CommentSchema from '../../schemas/Comment.model';
 import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
+import { BookingsModule } from '../bookings/bookings.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MemberModule } from '../member/member.module';
     ]),
     AuthModule,
     MemberModule,
+    BookingsModule,
   ],
   providers: [CommentResolver, CommentService],
 })
