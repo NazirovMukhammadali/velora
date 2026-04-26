@@ -22,7 +22,8 @@
     "test:e2e": "jest --config ./apps/nestar-api/test/jest-e2e.json",
     "seed:flights": "ts-node apps/nestar-api/src/seed/flights.seed.ts",
     "seed:tours": "ts-node apps/nestar-api/src/seed/tours.seed.ts",
-    "seed:hotels": "ts-node apps/nestar-api/src/seed/hotels.seed.ts"
+    "seed:hotels": "ts-node apps/nestar-api/src/seed/hotels.seed.ts",
+    "seed:rentcar": "ts-node apps/nestar-api/src/seed/rentcar.seed.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.5",
