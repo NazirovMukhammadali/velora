@@ -9,6 +9,7 @@ import { FlightsModule } from './flights/flights.module';
 import { HotelsModule } from './hotels/hotels.module';
 import { RentcarModule } from './rentcar/rentcar.module';
 import { ToursModule } from './tours/tours.module';
+import { BookingsModule } from './bookings/bookings.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ToursModule } from './tours/tours.module';
     ToursModule,
     HotelsModule,
     RentcarModule,
+    BookingsModule,
   ],
 })
 export class ComponentsModule { }
