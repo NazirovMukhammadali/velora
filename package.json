@@ -20,10 +20,23 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/nestar-api/test/jest-e2e.json",
+    "test:integration": "jest --config ./apps/nestar-api/test/jest-e2e.json bookings.integration.e2e-spec.ts --runInBand",
+    "prepare": "husky",
     "seed:flights": "ts-node apps/nestar-api/src/seed/flights.seed.ts",
     "seed:tours": "ts-node apps/nestar-api/src/seed/tours.seed.ts",
     "seed:hotels": "ts-node apps/nestar-api/src/seed/hotels.seed.ts",
     "seed:rentcar": "ts-node apps/nestar-api/src/seed/rentcar.seed.ts"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,json,md}": [
+      "prettier --write"
+    ],
+    "apps/**/*.ts": [
+      "eslint --fix"
+    ],
+    "libs/**/*.ts": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
     "@apollo/server": "^4.9.5",
@@ -66,7 +79,10 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^9.1.7",
     "jest": "^29.5.0",
+    "lint-staged": "^16.4.0",
+    "mongodb-memory-server": "^11.0.1",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
