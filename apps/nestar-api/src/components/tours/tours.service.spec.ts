@@ -124,6 +124,19 @@ describe('ToursService', () => {
         expect(result.metaCounter[0].total).toBe(0);
     });
 
+    it('returns popular tours sorted query result', async () => {
+        const popular = {
+            list: [{ _id: new Types.ObjectId(), tourLikes: 12, tourViews: 120 }],
+            metaCounter: [{ total: 1 }],
+        };
+        tourModel.aggregate.mockReturnValue(execMock([popular]));
+
+        const result = await service.getPopularTours({ page: 1, limit: 8 } as any);
+
+        expect(result).toEqual(popular);
+        expect(tourModel.aggregate).toHaveBeenCalled();
+    });
+
     it('hard removes tour by admin when already soft deleted', async () => {
         const deleted = { _id: new Types.ObjectId(), tourStatus: TourStatus.DELETE };
         tourModel.findOneAndDelete.mockReturnValue(execMock(deleted));

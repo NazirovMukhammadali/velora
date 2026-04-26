@@ -180,3 +180,20 @@ export class AllToursInquiry {
     @Field(() => AllToursSearch)
     search: AllToursSearch;
 }
+
+@InputType()
+export class PopularToursInquiry {
+    @IsNotEmpty()
+    @Min(1)
+    @Field(() => Int)
+    page: number;
+
+    @IsNotEmpty()
+    @Min(1)
+    @Field(() => Int)
+    limit: number;
+
+    @IsOptional()
+    @Field(() => String, { nullable: true })
+    tourLocation?: string;
+}

@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Tour, Tours } from '../../libs/dto/tour/tour';
-import { AgentToursInquiry, AllToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
+import { AgentToursInquiry, AllToursInquiry, PopularToursInquiry, TourInput, ToursInquiry } from '../../libs/dto/tour/tour.input';
 import { TourUpdate } from '../../libs/dto/tour/tour.update';
 import { MemberType } from '../../libs/enums/member.enum';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -53,6 +53,11 @@ export class ToursResolver {
     @Query(() => Tours)
     public async getTours(@Args('input') input: ToursInquiry): Promise<Tours> {
         return await this.toursService.getTours(input);
+    }
+
+    @Query(() => Tours)
+    public async getPopularTours(@Args('input') input: PopularToursInquiry): Promise<Tours> {
+        return await this.toursService.getPopularTours(input);
     }
 
     @Query(() => Tours)
