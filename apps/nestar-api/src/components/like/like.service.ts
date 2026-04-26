@@ -11,6 +11,7 @@ import { Properties } from '../../libs/dto/property/property';
 import { lookupFavorite } from '../../libs/config';
 import { Flights } from '../../libs/dto/flight/flight';
 import { Hotels } from '../../libs/dto/hotel/hotel';
+import { Rentcars } from '../../libs/dto/rentcar/rentcar';
 import { Tours } from '../../libs/dto/tour/tour';
 
 @Injectable()
@@ -194,6 +195,40 @@ export class LikeService {
 
         const result: Flights = { list: [], metaCounter: data?.[0]?.metaCounter ?? [{ total: 0 }] };
         result.list = (data?.[0]?.list ?? []).map((ele) => ele.favoriteFlight);
+        return result;
+    }
+
+    public async getFavoriteRentcars(memberId: Types.ObjectId, input: OrdinaryInquiry): Promise<Rentcars> {
+        const { page, limit } = input;
+        const match: T = { likeGroup: LikeGroup.CAR, memberId: memberId };
+
+        const data: T[] = await this.likeModel
+            .aggregate([
+                { $match: match },
+                { $sort: { updatedAt: -1 } },
+                {
+                    $lookup: {
+                        from: 'rentcars',
+                        localField: 'likeRefId',
+                        foreignField: '_id',
+                        as: 'favoriteRentcar',
+                    },
+                },
+                { $unwind: '$favoriteRentcar' },
+                {
+                    $facet: {
+                        list: [
+                            { $skip: (page - 1) * limit },
+                            { $limit: limit },
+                        ],
+                        metaCounter: [{ $count: 'total' }],
+                    },
+                },
+            ])
+            .exec();
+
+        const result: Rentcars = { list: [], metaCounter: data?.[0]?.metaCounter ?? [{ total: 0 }] };
+        result.list = (data?.[0]?.list ?? []).map((ele) => ele.favoriteRentcar);
         return result;
     }
 }
