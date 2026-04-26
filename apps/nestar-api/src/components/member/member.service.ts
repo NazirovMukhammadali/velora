@@ -29,12 +29,10 @@ export class MemberService {
         input.memberPassword = await this.authService.hashPassword(input.memberPassword);
         try {
             const result = await this.memberModel.create(input);
-            // TODO Authentication via TOKEN
             result.accessToken = await this.authService.createToken(result);
             result.memberPassword = undefined as any;
             return result;
         } catch (err) {
-            console.log('Error in signup service model:', err.message);
             throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
         }
     }
@@ -125,7 +123,6 @@ export class MemberService {
         const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
         if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
-        console.log("match", match);
 
         const aggregateResult = await this.memberModel.aggregate([
             { $match: match },
@@ -245,7 +242,6 @@ export class MemberService {
     }
 
     public async memberStatsEditor(input: StatisticModifier): Promise<Member | null> {
-        console.log('MemberStatsEditor executed');
         const { _id, targetKey, modifier } = input;
 
         return await this.memberModel

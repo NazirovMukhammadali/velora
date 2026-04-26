@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -10,16 +11,19 @@ import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
 import { SocketModule } from './socket/socket.module';
 
+const logger = new Logger('AppModule');
+const isProduction = process.env.NODE_ENV === 'production';
+
 @Module({ // modul decoretor
   imports: [ // imports, controllers, providers = propetry
     ConfigModule.forRoot(), // envirable verible intigratse
     GraphQLModule.forRoot({ // GraphQL serverini sozlash.
       driver: ApolloDriver, // ApolloDriver engine
-      playground: true, // GraphQL test interfaceni yoqadi
+      playground: !isProduction, // GraphQL test interfaceni yoqadi
+      introspection: !isProduction,
       uploads: false, // fayl yuklash imkoniyatini o‘chiradi.
       autoSchemaFile: true, // TypeScript dekoratorlaridan yaratiladi.
       formatError: (error: T) => { // Error handling
-        console.log("error:", error);
         const graphQlFormatedError = {
           code: error?.extensions.code,
           message:
@@ -27,7 +31,7 @@ import { SocketModule } from './socket/socket.module';
             error?.extensions?.response?.message ||
             error?.message,
         };
-        console.log('GRAPHQL GLOBAL ERR:', graphQlFormatedError);
+        if (!isProduction) logger.error({ rawError: error, formattedError: graphQlFormatedError });
         return graphQlFormatedError
       }
     }),

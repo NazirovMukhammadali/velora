@@ -3,8 +3,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Comment, Comments } from "../../libs/dto/comment/comment";
 import { MemberService } from "../member/member.service";
-import { PropertyService } from "../property/property.service";
-import { BoardArticleService } from "../board-article/board-article.service";
 import { CommentInput, CommentsInquiry } from "../../libs/dto/comment/comment.input";
 import { Direction, Message } from "../../libs/enums/common.enum";
 import { CommentGroup, CommentStatus } from "../../libs/enums/comment.enum";
@@ -17,8 +15,6 @@ export class CommentService {
     constructor(
         @InjectModel("Comment") private readonly commentModel: Model<Comment>,
         private readonly memberService: MemberService,
-        private readonly propertyService: PropertyService,
-        private readonly boardArticleService: BoardArticleService
     ) { }
 
     public async createComment(
@@ -35,31 +31,14 @@ export class CommentService {
             throw new BadRequestException(Message.CREATE_FAILED);
         }
 
-        switch (
-        input.commentGroup // krb kelyotgan inputni ichidagi commentGroup ga qarab switch caselar hosl qlndi
-        ) {
-            case CommentGroup.PROPERTY:
-                await this.propertyService.propertyStatsEditor({
-                    _id: input.commentRefId,
-                    targetKey: "propertyComments", // propertyComments ni sonini 1ga oshradi
-                    modifier: 1,
-                });
-                break;
-            case CommentGroup.ARTICLE:
-                await this.boardArticleService.boardArticleStatsEditor({
-                    _id: input.commentRefId,
-                    targetKey: "articleComments",
-                    modifier: 1,
-                });
-                break;
-            case CommentGroup.MEMBER:
-                await this.memberService.memberStatsEditor({
-                    _id: input.commentRefId,
-                    targetKey: "memberComments",
-                    modifier: 1,
-                });
-                break;
+        if (input.commentGroup !== CommentGroup.MEMBER) {
+            throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
         }
+        await this.memberService.memberStatsEditor({
+            _id: input.commentRefId,
+            targetKey: "memberComments",
+            modifier: 1,
+        });
 
         if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
         return result;

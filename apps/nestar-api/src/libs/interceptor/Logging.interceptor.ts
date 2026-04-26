@@ -6,6 +6,7 @@ import { tap } from 'rxjs/operators';
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
     private readonly logger: Logger = new Logger();
+    private readonly isProduction: boolean = process.env.NODE_ENV === 'production';
 
     public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const recordTime = Date.now();
@@ -14,16 +15,18 @@ export class LoggingInterceptor implements NestInterceptor {
         if (requestType === 'http') {
             // Develop if needed!
         } else if (requestType === 'graphql') {
-            // (1) Print Request
             const gqlContext = GqlExecutionContext.create(context);
-            this.logger.log(`${this.stringify(gqlContext.getContext().req.body)}`, 'REQUEST');
+            const requestBody = gqlContext.getContext().req?.body ?? {};
+            const operation = requestBody.operationName ?? 'anonymous';
 
-            // (2) Errors handling via GraphQl
-            //(3) No Errors, giving Response below
             return next.handle().pipe(
                 tap((contex) => {
                     const responseTime = Date.now() - recordTime;
-                    this.logger.log(`${this.stringify(contex)} - ${responseTime}ms \n\n`, 'RESPONSE');
+                    if (!this.isProduction) {
+                        this.logger.log(`[${operation}] ${this.stringify(contex)} - ${responseTime}ms`, 'RESPONSE');
+                    } else {
+                        this.logger.log(`[${operation}] ${responseTime}ms`, 'RESPONSE');
+                    }
                 }),
             );
         }

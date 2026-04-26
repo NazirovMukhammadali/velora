@@ -8,6 +8,11 @@ import { WsAdapter } from '@nestjs/platform-ws';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const isProduction = process.env.NODE_ENV === 'production';
+  const corsOriginList = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => Boolean(origin));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -17,7 +22,10 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new LoggingInterceptor());
-  app.enableCors({ origin: true, credentials: true });
+  app.enableCors({
+    origin: isProduction ? (corsOriginList.length ? corsOriginList : false) : true,
+    credentials: true,
+  });
 
   app.use(graphqlUploadExpress({ maxFileSize: 15000000, maxFiles: 10 }));
   app.use('/uploads', express.static('./uploads'));

@@ -22,21 +22,17 @@ export class MemberResolver {
 
     @Mutation(() => Member) // Member.ts class
     public async signup(@Args('input') input: MemberInput): Promise<Member> {
-        console.log('Mutation: signup');
         return await this.memberService.signup(input);
     }
 
     @Mutation(() => Member)
     public async login(@Args('input') input: LoginInput): Promise<Member> {
-        console.log('Mutation: login');
         return await this.memberService.login(input);
     }
 
     @UseGuards(AuthGuard)
     @Query(() => String)
     public async checkAuth(@AuthMember('memberNick') memberNick: string): Promise<string> {
-        console.log('Query: checkAuth');
-        console.log('memberNick:', memberNick);
         return `Hi ${memberNick}`;
     }
 
@@ -44,7 +40,6 @@ export class MemberResolver {
     @UseGuards(RolesGuard)
     @Query(() => String)
     public async checkAuthRoles(@AuthMember() authMember: Member) {
-        console.log('Query: checkAuthRoles');
         return `Hi ${authMember.memberNick}, you are ${authMember.memberType} (memberId: ${authMember._id})`;
     }
 
@@ -54,7 +49,6 @@ export class MemberResolver {
         @Args('input') input: MemberUpdate,
         @AuthMember('_id') memberId: Types.ObjectId
     ): Promise<Member> {
-        console.log('Mutation: updateMember');
         delete input._id;
         return await this.memberService.updateMember(memberId, input);
     }
@@ -66,7 +60,6 @@ export class MemberResolver {
         @Args('memberId') input: string,
         @AuthMember('_id') memberId: Types.ObjectId
     ): Promise<Member> {
-        console.log('Query: getMember');
         const targetId = shapeIntoMongoObjectId(input);
         return await this.memberService.getMember(memberId, targetId); // memberId(koruvchi) // targetId(izlanovchi)
     }
@@ -77,8 +70,6 @@ export class MemberResolver {
         @Args('input') input: AgentsInquiry,
         @AuthMember('_id') memberId: Types.ObjectId
     ): Promise<Members> {
-        console.log('Query: getAgents');
-        console.log("input", input);
         return await this.memberService.getAgents(memberId, input);
     }
 
@@ -88,7 +79,6 @@ export class MemberResolver {
         @Args('memberId') input: string,
         @AuthMember('_id') memberId: Types.ObjectId,
     ): Promise<Member> {
-        console.log('Mutation likeTargetMember');
         const likeRefId = shapeIntoMongoObjectId(input);
         return await this.memberService.likeTargetMember(memberId, likeRefId);
     }
@@ -102,7 +92,6 @@ export class MemberResolver {
     public async getAllMembersByAdmin(
         @Args('input') input: MembersInquiry
     ): Promise<Members> {
-        console.log('Query: getAllMembersByAdmin');
         return await this.memberService.getAllMembersByAdmin(input);
     }
 
@@ -113,7 +102,6 @@ export class MemberResolver {
     public async updateMemberByAdmin(
         @Args('input') input: MemberUpdate
     ): Promise<Member> {
-        console.log('Mutation: updateMemberByAdmin');
         return await this.memberService.updateMemberByAdmin(input);
     }
 
@@ -126,8 +114,6 @@ export class MemberResolver {
         { createReadStream, filename, mimetype }: FileUpload,
         @Args('target') target: string,
     ): Promise<string> {
-        console.log('Mutation: imageUploader');
-
         if (!filename) throw new Error(Message.UPLOAD_FAILED);
         const validMime = validMimeTypes.includes(mimetype);
         if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
@@ -154,7 +140,6 @@ export class MemberResolver {
         files: Promise<FileUpload>[],
         @Args('target') target: string,
     ): Promise<string[]> {
-        console.log('Mutation: imagesUploader');
         const uploadedImages: string[] = [];
         const promisedList = files.map(
             async (img: Promise<FileUpload>, index: number): Promise<void> => {
@@ -180,7 +165,7 @@ export class MemberResolver {
 
                     uploadedImages[index] = url;
                 } catch (err) {
-                    console.log('Error, file missing!');
+                    // skip invalid file and continue uploading remaining files
                 }
             });
 

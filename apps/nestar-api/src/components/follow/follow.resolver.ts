@@ -16,7 +16,6 @@ export class FollowResolver {
     @UseGuards(AuthGuard)
     @Mutation(() => Follower)
     public async subscribe(@Args('input') input: string, @AuthMember('_id') memberId: Types.ObjectId): Promise<Follower> {
-        console.log('Mutation: Subscribe');
         const followingId = shapeIntoMongoObjectId(input);
 
         return await this.followService.subscribe(memberId as unknown as Schema.Types.ObjectId,
@@ -26,7 +25,6 @@ export class FollowResolver {
     @UseGuards(AuthGuard)
     @Mutation(() => Follower)
     public async unsubscribe(@Args('input') input: string, @AuthMember('_id') memberId: Types.ObjectId): Promise<Follower> {
-        console.log('Mutation: unsubscribe');
         const followingId = shapeIntoMongoObjectId(input);
         return await this.followService.unsubscribe(memberId as unknown as Schema.Types.ObjectId,
             followingId as unknown as Schema.Types.ObjectId);
@@ -38,9 +36,6 @@ export class FollowResolver {
         @Args('input') input: FollowInquiry,
         @AuthMember('_id') memberId: Types.ObjectId,
     ): Promise<Followings> {
-        console.log('Query  getMemberFollowings');
-        const { followerId } = input.search;
-
         input.search.followerId = shapeIntoMongoObjectId(input.search.followerId);
 
         return await this.followService.getMemberFollowings(memberId as unknown as Types.ObjectId,
@@ -53,7 +48,6 @@ export class FollowResolver {
         @Args('input') input: FollowInquiry,
         @AuthMember('_id') memberId: Types.ObjectId,
     ): Promise<Followers> {
-        console.log('Query getMemberFollowers ');
         let { followingId } = input.search;
         input.search.followingId = shapeIntoMongoObjectId(followingId);
         return await this.followService.getMemberFollowers(memberId as unknown as Types.ObjectId,
