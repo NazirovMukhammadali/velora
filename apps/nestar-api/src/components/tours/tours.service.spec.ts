@@ -134,7 +134,35 @@ describe('ToursService', () => {
         const result = await service.getPopularTours({ page: 1, limit: 8 } as any);
 
         expect(result).toEqual(popular);
-        expect(tourModel.aggregate).toHaveBeenCalled();
+        expect(tourModel.aggregate).toHaveBeenCalledWith(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    $match: expect.objectContaining({
+                        tourStatus: TourStatus.ACTIVE,
+                        tourSoldCount: { $gt: 0 },
+                    }),
+                }),
+                expect.objectContaining({
+                    $sort: expect.objectContaining({
+                        tourSoldCount: -1,
+                        tourLikes: -1,
+                        tourViews: -1,
+                    }),
+                }),
+            ]),
+        );
+    });
+
+    it('rejects getAgentTours when member is not active agent', async () => {
+        memberService.getMember.mockResolvedValue({
+            _id: new Types.ObjectId(),
+            memberType: 'USER',
+            memberStatus: 'ACTIVE',
+        });
+
+        await expect(
+            service.getAgentTours(new Types.ObjectId().toString(), { page: 1, limit: 5 } as any),
+        ).rejects.toBeInstanceOf(BadRequestException);
     });
 
     it('hard removes tour by admin when already soft deleted', async () => {
