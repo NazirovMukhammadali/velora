@@ -2,6 +2,11 @@
 
 Use this file as a stable frontend/backend contract for initial integration.
 
+## Contract status
+
+- Contract frozen for frontend integration.
+- Breaking changes are not allowed in listed operations until frontend MVP handoff is complete.
+
 ## Discovery Domains (no booking mutations)
 
 ### Flights

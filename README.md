@@ -101,7 +101,7 @@ npm run seed:tours
   - `npm run build`
   - `npm run test -- --runInBand`
   - `npm run test:integration`
-- Current temporary policy: lint is non-blocking in CI while global lint debt is cleaned in a separate task.
+- Lint is blocking in CI (strict mode restored).
 
 ## Booking contract (locked)
 
@@ -128,3 +128,7 @@ See `docs/BOOKING_DEMO_FLOW.md` for the end-to-end demo scenario.
 See `docs/TECH_DEBT_SCOPE.md` for separated debt handling policy.
 See `docs/API_HANDOFF_CHECKLIST.md` before starting frontend integration.
 See `docs/GRAPHQL_CONTRACT_OPERATIONS.md` for stable GraphQL operation contract.
+
+## Release note
+
+- Backend MVP ready (portfolio release mode).
