@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LikeModule } from '../like/like.module';
 import { ViewModule } from '../view/view.module';
+import { AuthModule } from '../auth/auth.module';
 import HotelSchema from '../../schemas/Hotel.model';
 import { HotelsResolver } from './hotels.resolver';
 import { HotelsService } from './hotels.service';
 
 @Module({
-	imports: [MongooseModule.forFeature([{ name: 'Hotel', schema: HotelSchema }]), LikeModule, ViewModule],
+	imports: [MongooseModule.forFeature([{ name: 'Hotel', schema: HotelSchema }]), LikeModule, ViewModule, AuthModule],
 	providers: [HotelsResolver, HotelsService],
 })
 export class HotelsModule {}
