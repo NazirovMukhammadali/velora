@@ -14,7 +14,8 @@ import { TourStatus } from '../src/libs/enums/tour.enum';
 
 const authMemberId = new Types.ObjectId('507f1f77bcf86cd799439041');
 const authAgentId = new Types.ObjectId('507f1f77bcf86cd799439051');
-const describeIntegration = process.platform === 'darwin' ? describe.skip : describe;
+const canRunMongoMemoryTests = process.platform !== 'darwin' || process.env.RUN_MONGO_MEMORY_TESTS === 'true';
+const describeIntegration = canRunMongoMemoryTests ? describe : describe.skip;
 
 jest.mock('../src/libs/config', () => ({
 	shapeIntoMongoObjectId: jest.fn((value) => value),
