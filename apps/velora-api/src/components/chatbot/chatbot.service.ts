@@ -44,9 +44,7 @@ export class ChatbotService {
 
 	public ask(prompt: string): ChatbotReply {
 		const normalizedPrompt = prompt.toLowerCase().trim();
-		const matchedRule = this.rules.find((rule) =>
-			rule.keywords.some((keyword) => normalizedPrompt.includes(keyword)),
-		);
+		const matchedRule = this.rules.find((rule) => rule.keywords.some((keyword) => normalizedPrompt.includes(keyword)));
 
 		if (matchedRule) {
 			return {

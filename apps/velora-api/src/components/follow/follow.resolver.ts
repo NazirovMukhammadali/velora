@@ -11,46 +11,45 @@ import { FollowInquiry } from '../../libs/dto/follow/follow.input';
 
 @Resolver()
 export class FollowResolver {
-    constructor(private readonly followService: FollowService) { }
+	constructor(private readonly followService: FollowService) {}
 
-    @UseGuards(AuthGuard)
-    @Mutation(() => Follower)
-    public async subscribe(@Args('input') input: string, @AuthMember('_id') memberId: Types.ObjectId): Promise<Follower> {
-        const followingId = shapeIntoMongoObjectId(input);
+	@UseGuards(AuthGuard)
+	@Mutation(() => Follower)
+	public async subscribe(@Args('input') input: string, @AuthMember('_id') memberId: Types.ObjectId): Promise<Follower> {
+		const followingId = shapeIntoMongoObjectId(input);
 
-        return await this.followService.subscribe(memberId as unknown as Schema.Types.ObjectId,
-            followingId as unknown as Schema.Types.ObjectId);
-    }
+		return await this.followService.subscribe(memberId as unknown as Schema.Types.ObjectId, followingId);
+	}
 
-    @UseGuards(AuthGuard)
-    @Mutation(() => Follower)
-    public async unsubscribe(@Args('input') input: string, @AuthMember('_id') memberId: Types.ObjectId): Promise<Follower> {
-        const followingId = shapeIntoMongoObjectId(input);
-        return await this.followService.unsubscribe(memberId as unknown as Schema.Types.ObjectId,
-            followingId as unknown as Schema.Types.ObjectId);
-    }
+	@UseGuards(AuthGuard)
+	@Mutation(() => Follower)
+	public async unsubscribe(
+		@Args('input') input: string,
+		@AuthMember('_id') memberId: Types.ObjectId,
+	): Promise<Follower> {
+		const followingId = shapeIntoMongoObjectId(input);
+		return await this.followService.unsubscribe(memberId as unknown as Schema.Types.ObjectId, followingId);
+	}
 
-    @UseGuards(WithoutGuard)
-    @Query(() => Followings)
-    public async getMemberFollowings(
-        @Args('input') input: FollowInquiry,
-        @AuthMember('_id') memberId: Types.ObjectId,
-    ): Promise<Followings> {
-        input.search.followerId = shapeIntoMongoObjectId(input.search.followerId);
+	@UseGuards(WithoutGuard)
+	@Query(() => Followings)
+	public async getMemberFollowings(
+		@Args('input') input: FollowInquiry,
+		@AuthMember('_id') memberId: Types.ObjectId,
+	): Promise<Followings> {
+		input.search.followerId = shapeIntoMongoObjectId(input.search.followerId);
 
-        return await this.followService.getMemberFollowings(memberId as unknown as Types.ObjectId,
-            input);
-    }
+		return await this.followService.getMemberFollowings(memberId, input);
+	}
 
-    @UseGuards(WithoutGuard)
-    @Query(() => Followers)
-    public async getMemberFollowers(
-        @Args('input') input: FollowInquiry,
-        @AuthMember('_id') memberId: Types.ObjectId,
-    ): Promise<Followers> {
-        let { followingId } = input.search;
-        input.search.followingId = shapeIntoMongoObjectId(followingId);
-        return await this.followService.getMemberFollowers(memberId as unknown as Types.ObjectId,
-            input);
-    }
+	@UseGuards(WithoutGuard)
+	@Query(() => Followers)
+	public async getMemberFollowers(
+		@Args('input') input: FollowInquiry,
+		@AuthMember('_id') memberId: Types.ObjectId,
+	): Promise<Followers> {
+		const { followingId } = input.search;
+		input.search.followingId = shapeIntoMongoObjectId(followingId);
+		return await this.followService.getMemberFollowers(memberId, input);
+	}
 }

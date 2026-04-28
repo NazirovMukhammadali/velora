@@ -6,66 +6,66 @@ import { RentcarCategory, RentcarStatus, TransmissionType } from '../../enums/re
 
 @ObjectType()
 export class Rentcar {
-    @Field(() => String)
-    _id: ObjectId;
+	@Field(() => String)
+	_id: ObjectId;
 
-    @Field(() => String)
-    carTitle: string;
+	@Field(() => String)
+	carTitle: string;
 
-    @Field(() => String)
-    carLocation: string;
+	@Field(() => String)
+	carLocation: string;
 
-    @Field(() => RentcarCategory)
-    carCategory: RentcarCategory;
+	@Field(() => RentcarCategory)
+	carCategory: RentcarCategory;
 
-    @Field(() => TransmissionType)
-    transmission: TransmissionType;
+	@Field(() => TransmissionType)
+	transmission: TransmissionType;
 
-    @Field(() => Int)
-    seats: number;
+	@Field(() => Int)
+	seats: number;
 
-    @Field(() => Number)
-    dailyPrice: number;
+	@Field(() => Number)
+	dailyPrice: number;
 
-    @Field(() => Int)
-    availableCars: number;
+	@Field(() => Int)
+	availableCars: number;
 
-    @Field(() => [String])
-    carImages: string[];
+	@Field(() => [String])
+	carImages: string[];
 
-    @Field(() => String, { nullable: true })
-    carDesc?: string;
+	@Field(() => String, { nullable: true })
+	carDesc?: string;
 
-    @Field(() => RentcarStatus)
-    rentcarStatus: RentcarStatus;
+	@Field(() => RentcarStatus)
+	rentcarStatus: RentcarStatus;
 
-    @Field(() => Int)
-    rentcarLikes: number;
+	@Field(() => Int)
+	rentcarLikes: number;
 
-    @Field(() => Int)
-    rentcarViews: number;
+	@Field(() => Int)
+	rentcarViews: number;
 
-    @Field(() => Int)
-    rentcarComments: number;
+	@Field(() => Int)
+	rentcarComments: number;
 
-    @Field(() => Int)
-    rentcarRank: number;
+	@Field(() => Int)
+	rentcarRank: number;
 
-    @Field(() => Date)
-    createdAt: Date;
+	@Field(() => Date)
+	createdAt: Date;
 
-    @Field(() => Date)
-    updatedAt: Date;
+	@Field(() => Date)
+	updatedAt: Date;
 
-    @Field(() => [MeLiked], { nullable: true })
-    meLiked?: MeLiked[];
+	@Field(() => [MeLiked], { nullable: true })
+	meLiked?: MeLiked[];
 }
 
 @ObjectType()
 export class Rentcars {
-    @Field(() => [Rentcar])
-    list: Rentcar[];
+	@Field(() => [Rentcar])
+	list: Rentcar[];
 
-    @Field(() => [TotalCounter], { nullable: true })
-    metaCounter: TotalCounter[];
+	@Field(() => [TotalCounter], { nullable: true })
+	metaCounter: TotalCounter[];
 }

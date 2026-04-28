@@ -8,17 +8,17 @@ import { MemberModule } from '../member/member.module';
 import { BookingsModule } from '../bookings/bookings.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      {
-        name: 'Comment',
-        schema: CommentSchema,
-      },
-    ]),
-    AuthModule,
-    MemberModule,
-    BookingsModule,
-  ],
-  providers: [CommentResolver, CommentService],
+	imports: [
+		MongooseModule.forFeature([
+			{
+				name: 'Comment',
+				schema: CommentSchema,
+			},
+		]),
+		AuthModule,
+		MemberModule,
+		BookingsModule,
+	],
+	providers: [CommentResolver, CommentService],
 })
-export class CommentModule { }
+export class CommentModule {}

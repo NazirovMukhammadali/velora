@@ -6,69 +6,69 @@ import { MeLiked } from '../like/like';
 
 @ObjectType()
 export class Tour {
-    @Field(() => String)
-    _id: ObjectId;
+	@Field(() => String)
+	_id: ObjectId;
 
-    @Field(() => String)
-    tourTitle: string;
+	@Field(() => String)
+	tourTitle: string;
 
-    @Field(() => String)
-    tourLocation: string;
+	@Field(() => String)
+	tourLocation: string;
 
-    @Field(() => Int)
-    tourDays: number;
+	@Field(() => Int)
+	tourDays: number;
 
-    @Field(() => Int)
-    tourNights: number;
+	@Field(() => Int)
+	tourNights: number;
 
-    @Field(() => Number)
-    tourPrice: number;
+	@Field(() => Number)
+	tourPrice: number;
 
-    @Field(() => [String])
-    tourImages: string[];
+	@Field(() => [String])
+	tourImages: string[];
 
-    @Field(() => String, { nullable: true })
-    tourDesc?: string;
+	@Field(() => String, { nullable: true })
+	tourDesc?: string;
 
-    @Field(() => TourStatus)
-    tourStatus: TourStatus;
+	@Field(() => TourStatus)
+	tourStatus: TourStatus;
 
-    @Field(() => Int)
-    tourLikes: number;
+	@Field(() => Int)
+	tourLikes: number;
 
-    @Field(() => Int)
-    tourViews: number;
+	@Field(() => Int)
+	tourViews: number;
 
-    @Field(() => Int)
-    tourComments: number;
+	@Field(() => Int)
+	tourComments: number;
 
-    @Field(() => Int)
-    tourRank: number;
+	@Field(() => Int)
+	tourRank: number;
 
-    @Field(() => Int)
-    tourSoldCount: number;
+	@Field(() => Int)
+	tourSoldCount: number;
 
-    @Field(() => String)
-    memberId: ObjectId;
+	@Field(() => String)
+	memberId: ObjectId;
 
-    @Field(() => Date)
-    createdAt: Date;
+	@Field(() => Date)
+	createdAt: Date;
 
-    @Field(() => Date)
-    updatedAt: Date;
+	@Field(() => Date)
+	updatedAt: Date;
 
-    @Field(() => [MeLiked], { nullable: true })
-    meLiked?: MeLiked[];
+	@Field(() => [MeLiked], { nullable: true })
+	meLiked?: MeLiked[];
 
-    @Field(() => Member, { nullable: true })
-    memberData?: Member;
+	@Field(() => Member, { nullable: true })
+	memberData?: Member;
 }
 
 @ObjectType()
 export class Tours {
-    @Field(() => [Tour])
-    list: Tour[];
+	@Field(() => [Tour])
+	list: Tour[];
 
-    @Field(() => [TotalCounter], { nullable: true })
-    metaCounter: TotalCounter[];
+	@Field(() => [TotalCounter], { nullable: true })
+	metaCounter: TotalCounter[];
 }

@@ -9,22 +9,21 @@ import { LikeModule } from '../like/like.module';
 import FollowSchema from '../../schemas/Follow.model';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature( // forFeature MongoDB kolleksiyasi ulanadi.
-      [{ name: 'Member', schema: MemberSchema }] //Member kolleksiyasi MongoDB yaratadi.
-    ),
-    MongooseModule.forFeature(
-      [{ name: 'Follow', schema: FollowSchema }]
-    ),
-    AuthModule,
-    ViewModule,
-    LikeModule
-
-  ],
-  providers: [ // MVC
-    MemberResolver, // Controller
-    MemberService, // ServiceModel
-  ],
-  exports: [MemberService],
+	imports: [
+		MongooseModule.forFeature(
+			// forFeature MongoDB kolleksiyasi ulanadi.
+			[{ name: 'Member', schema: MemberSchema }], //Member kolleksiyasi MongoDB yaratadi.
+		),
+		MongooseModule.forFeature([{ name: 'Follow', schema: FollowSchema }]),
+		AuthModule,
+		ViewModule,
+		LikeModule,
+	],
+	providers: [
+		// MVC
+		MemberResolver, // Controller
+		MemberService, // ServiceModel
+	],
+	exports: [MemberService],
 })
-export class MemberModule { }
+export class MemberModule {}

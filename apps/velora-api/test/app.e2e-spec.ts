@@ -6,22 +6,19 @@ import { AppController } from '../src/app.controller';
 import { AppService } from '../src/app.service';
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+	let app: INestApplication<App>;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
+	beforeEach(async () => {
+		const moduleFixture: TestingModule = await Test.createTestingModule({
+			controllers: [AppController],
+			providers: [AppService],
+		}).compile();
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
+		app = moduleFixture.createNestApplication();
+		await app.init();
+	});
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Welcome to Velora API Server!');
-  });
+	it('/ (GET)', () => {
+		return request(app.getHttpServer()).get('/').expect(200).expect('Welcome to Velora API Server!');
+	});
 });

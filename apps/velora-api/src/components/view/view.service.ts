@@ -8,28 +8,26 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 
 @Injectable()
 export class ViewService {
-    toggleLike(input: LikeInput): number | PromiseLike<number> {
-        throw new Error('Method not implemented.');
-    }
-    constructor(@InjectModel('View') private readonly viewModel: Model<View>) { }
+	toggleLike(input: LikeInput): number | PromiseLike<number> {
+		throw new Error('Method not implemented.');
+	}
+	constructor(@InjectModel('View') private readonly viewModel: Model<View>) {}
 
-    public async recordView(input: ViewInput): Promise<View | null> {
-        const viewExist = await this.checkViewExistance(input);
-        if (!viewExist) {
-            console.log('- New View Insert -');
-            return await this.viewModel.create(input);
-        } else return null;
+	public async recordView(input: ViewInput): Promise<View | null> {
+		const viewExist = await this.checkViewExistance(input);
+		if (!viewExist) {
+			console.log('- New View Insert -');
+			return await this.viewModel.create(input);
+		} else return null;
+	}
 
-    }
+	private async checkViewExistance(input: ViewInput): Promise<View | null> {
+		const { memberId, viewRefId } = input;
+		const search: T = {
+			memberId: memberId,
+			viewRefId: viewRefId,
+		};
 
-    private async checkViewExistance(input: ViewInput): Promise<View | null> {
-        const { memberId, viewRefId } = input;
-        const search: T = {
-            memberId: memberId,
-            viewRefId: viewRefId,
-        };
-
-        return await this.viewModel.findOne(search).exec();
-    }
-
+		return await this.viewModel.findOne(search).exec();
+	}
 }

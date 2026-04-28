@@ -7,14 +7,14 @@ import { BookingsResolver } from './bookings.resolver';
 import { BookingsService } from './bookings.service';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            { name: 'Booking', schema: BookingSchema },
-            { name: 'Tour', schema: TourSchema },
-        ]),
-        AuthModule,
-    ],
-    providers: [BookingsResolver, BookingsService],
-    exports: [BookingsService],
+	imports: [
+		MongooseModule.forFeature([
+			{ name: 'Booking', schema: BookingSchema },
+			{ name: 'Tour', schema: TourSchema },
+		]),
+		AuthModule,
+	],
+	providers: [BookingsResolver, BookingsService],
+	exports: [BookingsService],
 })
-export class BookingsModule { }
+export class BookingsModule {}

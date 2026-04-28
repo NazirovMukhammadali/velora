@@ -8,12 +8,7 @@ import { FlightsResolver } from './flights.resolver';
 import { FlightsService } from './flights.service';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: 'Flight', schema: FlightSchema }]),
-        LikeModule,
-        ViewModule,
-        AuthModule,
-    ],
-    providers: [FlightsResolver, FlightsService],
+	imports: [MongooseModule.forFeature([{ name: 'Flight', schema: FlightSchema }]), LikeModule, ViewModule, AuthModule],
+	providers: [FlightsResolver, FlightsService],
 })
 export class FlightsModule {}

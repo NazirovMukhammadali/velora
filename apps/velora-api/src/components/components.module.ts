@@ -13,19 +13,19 @@ import { BookingsModule } from './bookings/bookings.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 
 @Module({
-  imports: [
-    MemberModule,
-    AuthModule,
-    CommentModule,
-    LikeModule,
-    ViewModule,
-    FollowModule,
-    FlightsModule,
-    ToursModule,
-    HotelsModule,
-    RentcarModule,
-    BookingsModule,
-    ChatbotModule,
-  ],
+	imports: [
+		MemberModule,
+		AuthModule,
+		CommentModule,
+		LikeModule,
+		ViewModule,
+		FollowModule,
+		FlightsModule,
+		ToursModule,
+		HotelsModule,
+		RentcarModule,
+		BookingsModule,
+		ChatbotModule,
+	],
 })
-export class ComponentsModule { }
+export class ComponentsModule {}

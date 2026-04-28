@@ -101,7 +101,9 @@ describe('BookingsService', () => {
 		tourModel.findOneAndUpdate.mockReturnValue(execMock(null));
 		bookingModel.findByIdAndUpdate.mockReturnValue(execMock({}));
 
-		await expect(service.confirmBookingByAdmin({ _id: updated._id } as any)).rejects.toBeInstanceOf(BadRequestException);
+		await expect(service.confirmBookingByAdmin({ _id: updated._id } as any)).rejects.toBeInstanceOf(
+			BadRequestException,
+		);
 		expect(bookingModel.findByIdAndUpdate).toHaveBeenCalledWith(updated._id, {
 			bookingStatus: BookingStatus.PENDING,
 		});

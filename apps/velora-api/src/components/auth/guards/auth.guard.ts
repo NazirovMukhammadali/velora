@@ -4,7 +4,7 @@ import { Message } from '../../../libs/enums/common.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-	constructor(private authService: AuthService) { }
+	constructor(private authService: AuthService) {}
 
 	async canActivate(context: ExecutionContext | any): Promise<boolean> {
 		if (context.contextType === 'graphql') {
@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
 			return true;
 		}
 		return false;
- 
+
 		// description => http, rpc, gprs and etc are ignored
 	}
 }

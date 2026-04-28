@@ -8,192 +8,192 @@ const availableTourSorts = ['createdAt', 'tourPrice', 'tourLikes', 'tourViews', 
 
 @InputType()
 export class TourInput {
-    @IsNotEmpty()
-    @Length(3, 120)
-    @Field(() => String)
-    tourTitle: string;
+	@IsNotEmpty()
+	@Length(3, 120)
+	@Field(() => String)
+	tourTitle: string;
 
-    @IsNotEmpty()
-    @Length(2, 100)
-    @Field(() => String)
-    tourLocation: string;
+	@IsNotEmpty()
+	@Length(2, 100)
+	@Field(() => String)
+	tourLocation: string;
 
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    tourDays: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	tourDays: number;
 
-    @IsOptional()
-    @Min(0)
-    @Field(() => Int, { nullable: true })
-    tourNights?: number;
+	@IsOptional()
+	@Min(0)
+	@Field(() => Int, { nullable: true })
+	tourNights?: number;
 
-    @IsNotEmpty()
-    @Min(0)
-    @Field(() => Number)
-    tourPrice: number;
+	@IsNotEmpty()
+	@Min(0)
+	@Field(() => Number)
+	tourPrice: number;
 
-    @IsNotEmpty()
-    @Field(() => [String])
-    tourImages: string[];
+	@IsNotEmpty()
+	@Field(() => [String])
+	tourImages: string[];
 
-    @IsOptional()
-    @Length(5, 500)
-    @Field(() => String, { nullable: true })
-    tourDesc?: string;
+	@IsOptional()
+	@Length(5, 500)
+	@Field(() => String, { nullable: true })
+	tourDesc?: string;
 
-    @IsOptional()
-    @Field(() => TourStatus, { nullable: true })
-    tourStatus?: TourStatus;
+	@IsOptional()
+	@Field(() => TourStatus, { nullable: true })
+	tourStatus?: TourStatus;
 
-    memberId?: Types.ObjectId;
+	memberId?: Types.ObjectId;
 }
 
 @InputType()
 class TourSearch {
-    @IsOptional()
-    @Field(() => String, { nullable: true })
-    memberId?: Types.ObjectId;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	memberId?: Types.ObjectId;
 
-    @IsOptional()
-    @Field(() => String, { nullable: true })
-    tourLocation?: string;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	tourLocation?: string;
 
-    @IsOptional()
-    @Field(() => TourStatus, { nullable: true })
-    tourStatus?: TourStatus;
+	@IsOptional()
+	@Field(() => TourStatus, { nullable: true })
+	tourStatus?: TourStatus;
 
-    @IsOptional()
-    @Field(() => String, { nullable: true })
-    text?: string;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	text?: string;
 
-    @IsOptional()
-    @Min(0)
-    @Field(() => Int, { nullable: true })
-    minPrice?: number;
+	@IsOptional()
+	@Min(0)
+	@Field(() => Int, { nullable: true })
+	minPrice?: number;
 
-    @IsOptional()
-    @Min(0)
-    @Field(() => Int, { nullable: true })
-    maxPrice?: number;
+	@IsOptional()
+	@Min(0)
+	@Field(() => Int, { nullable: true })
+	maxPrice?: number;
 }
 
 @InputType()
 export class ToursInquiry {
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    page: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
 
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    limit: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
 
-    @IsOptional()
-    @IsIn(availableTourSorts)
-    @Field(() => String, { nullable: true })
-    sort?: string;
+	@IsOptional()
+	@IsIn(availableTourSorts)
+	@Field(() => String, { nullable: true })
+	sort?: string;
 
-    @IsOptional()
-    @Field(() => Direction, { nullable: true })
-    direction?: Direction;
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	direction?: Direction;
 
-    @IsNotEmpty()
-    @Field(() => TourSearch)
-    search: TourSearch;
+	@IsNotEmpty()
+	@Field(() => TourSearch)
+	search: TourSearch;
 }
 
 @InputType()
 export class AgentToursInquiry {
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    page: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
 
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    limit: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
 
-    @IsOptional()
-    @IsIn(availableTourSorts)
-    @Field(() => String, { nullable: true })
-    sort?: string;
+	@IsOptional()
+	@IsIn(availableTourSorts)
+	@Field(() => String, { nullable: true })
+	sort?: string;
 
-    @IsOptional()
-    @Field(() => Direction, { nullable: true })
-    direction?: Direction;
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	direction?: Direction;
 
-    @IsOptional()
-    @Field(() => String, { nullable: true })
-    tourLocation?: string;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	tourLocation?: string;
 
-    @IsOptional()
-    @Min(0)
-    @Field(() => Int, { nullable: true })
-    minPrice?: number;
+	@IsOptional()
+	@Min(0)
+	@Field(() => Int, { nullable: true })
+	minPrice?: number;
 
-    @IsOptional()
-    @Min(0)
-    @Field(() => Int, { nullable: true })
-    maxPrice?: number;
+	@IsOptional()
+	@Min(0)
+	@Field(() => Int, { nullable: true })
+	maxPrice?: number;
 }
 
 @InputType()
 class AllToursSearch {
-    @IsOptional()
-    @Field(() => TourStatus, { nullable: true })
-    tourStatus?: TourStatus;
+	@IsOptional()
+	@Field(() => TourStatus, { nullable: true })
+	tourStatus?: TourStatus;
 
-    @IsOptional()
-    @Field(() => String, { nullable: true })
-    tourLocation?: string;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	tourLocation?: string;
 
-    @IsOptional()
-    @Field(() => String, { nullable: true })
-    memberId?: Types.ObjectId;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	memberId?: Types.ObjectId;
 }
 
 @InputType()
 export class AllToursInquiry {
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    page: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
 
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    limit: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
 
-    @IsOptional()
-    @IsIn(availableTourSorts)
-    @Field(() => String, { nullable: true })
-    sort?: string;
+	@IsOptional()
+	@IsIn(availableTourSorts)
+	@Field(() => String, { nullable: true })
+	sort?: string;
 
-    @IsOptional()
-    @Field(() => Direction, { nullable: true })
-    direction?: Direction;
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	direction?: Direction;
 
-    @IsNotEmpty()
-    @Field(() => AllToursSearch)
-    search: AllToursSearch;
+	@IsNotEmpty()
+	@Field(() => AllToursSearch)
+	search: AllToursSearch;
 }
 
 @InputType()
 export class PopularToursInquiry {
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    page: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
 
-    @IsNotEmpty()
-    @Min(1)
-    @Field(() => Int)
-    limit: number;
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
 
-    @IsOptional()
-    @Field(() => String, { nullable: true })
-    tourLocation?: string;
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	tourLocation?: string;
 }

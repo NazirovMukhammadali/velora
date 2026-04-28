@@ -41,12 +41,10 @@ const resolveMongoUri = (): string => {
 };
 
 const ensureDemoMember = async (memberModel: mongoose.Model<any>): Promise<Types.ObjectId> => {
-	const existing = (await memberModel
-		.findOne({ memberNick: 'velora_demo_user' })
-		.select('_id')
-		.lean()
-		.exec()) as { _id?: Types.ObjectId } | null;
-	if (existing?._id) return existing._id as Types.ObjectId;
+	const existing = (await memberModel.findOne({ memberNick: 'velora_demo_user' }).select('_id').lean().exec()) as {
+		_id?: Types.ObjectId;
+	} | null;
+	if (existing?._id) return existing._id;
 
 	const hash = await bcrypt.hash('User@12345', 10);
 	const created = await memberModel.create({

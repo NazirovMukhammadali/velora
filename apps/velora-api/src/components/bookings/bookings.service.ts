@@ -110,9 +110,7 @@ export class BookingsService {
 
 		// Keep booking and tour counters consistent when confirmation succeeds.
 		if (!updatedTour) {
-			await this.bookingModel
-				.findByIdAndUpdate(result._id, { bookingStatus: BookingStatus.PENDING })
-				.exec();
+			await this.bookingModel.findByIdAndUpdate(result._id, { bookingStatus: BookingStatus.PENDING }).exec();
 			throw new BadRequestException(Message.UPDATE_FAILED);
 		}
 

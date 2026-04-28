@@ -262,10 +262,7 @@ describeIntegration('Critical flows (integration, mongo-memory)', () => {
             }
           }
         `;
-		const detailResponse = await request(app.getHttpServer())
-			.post('/graphql')
-			.send({ query: detailQuery })
-			.expect(200);
+		const detailResponse = await request(app.getHttpServer()).post('/graphql').send({ query: detailQuery }).expect(200);
 		expect(detailResponse.body.errors).toBeUndefined();
 		expect(detailResponse.body.data.getFlightDetail.flightNumber).toBe('VL-700');
 

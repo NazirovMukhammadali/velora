@@ -7,11 +7,7 @@ import { RentcarResolver } from './rentcar.resolver';
 import { RentcarService } from './rentcar.service';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: 'Rentcar', schema: RentcarSchema }]),
-        LikeModule,
-        ViewModule,
-    ],
-    providers: [RentcarResolver, RentcarService],
+	imports: [MongooseModule.forFeature([{ name: 'Rentcar', schema: RentcarSchema }]), LikeModule, ViewModule],
+	providers: [RentcarResolver, RentcarService],
 })
 export class RentcarModule {}

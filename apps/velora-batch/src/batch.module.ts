@@ -9,13 +9,14 @@ import PropertySchema from 'apps/velora-api/src/schemas/Property.model';
 import MemberSchema from 'apps/velora-api/src/schemas/Member.model';
 
 @Module({
-  imports: [ConfigModule.forRoot(),
-    DatabaseModule,
-  ScheduleModule.forRoot(),
-  MongooseModule.forFeature([{ name: 'Property', schema: PropertySchema }]),
-  MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
-  ],
-  controllers: [BatchController],
-  providers: [BatchService],
+	imports: [
+		ConfigModule.forRoot(),
+		DatabaseModule,
+		ScheduleModule.forRoot(),
+		MongooseModule.forFeature([{ name: 'Property', schema: PropertySchema }]),
+		MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
+	],
+	controllers: [BatchController],
+	providers: [BatchService],
 })
-export class BatchModule { }
+export class BatchModule {}

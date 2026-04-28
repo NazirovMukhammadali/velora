@@ -7,17 +7,17 @@ import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            {
-                name: 'Follow',
-                schema: FollowSchema,
-            },
-        ]),
-        AuthModule,
-        MemberModule,
-    ],
+	imports: [
+		MongooseModule.forFeature([
+			{
+				name: 'Follow',
+				schema: FollowSchema,
+			},
+		]),
+		AuthModule,
+		MemberModule,
+	],
 
-    providers: [FollowResolver, FollowService],
+	providers: [FollowResolver, FollowService],
 })
-export class FollowModule { }
+export class FollowModule {}

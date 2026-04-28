@@ -5,42 +5,42 @@ import { TotalCounter } from '../member/member';
 
 @ObjectType()
 export class Booking {
-    @Field(() => String)
-    _id: Types.ObjectId;
+	@Field(() => String)
+	_id: Types.ObjectId;
 
-    @Field(() => BookingType)
-    bookingType: BookingType;
+	@Field(() => BookingType)
+	bookingType: BookingType;
 
-    @Field(() => BookingStatus)
-    bookingStatus: BookingStatus;
+	@Field(() => BookingStatus)
+	bookingStatus: BookingStatus;
 
-    @Field(() => String)
-    bookingRefId: Types.ObjectId;
+	@Field(() => String)
+	bookingRefId: Types.ObjectId;
 
-    @Field(() => String)
-    memberId: Types.ObjectId;
+	@Field(() => String)
+	memberId: Types.ObjectId;
 
-    @Field(() => String)
-    agentId: Types.ObjectId;
+	@Field(() => String)
+	agentId: Types.ObjectId;
 
-    @Field(() => String)
-    bookingTitle: string;
+	@Field(() => String)
+	bookingTitle: string;
 
-    @Field(() => Int)
-    bookingPrice: number;
+	@Field(() => Int)
+	bookingPrice: number;
 
-    @Field(() => Date)
-    createdAt: Date;
+	@Field(() => Date)
+	createdAt: Date;
 
-    @Field(() => Date)
-    updatedAt: Date;
+	@Field(() => Date)
+	updatedAt: Date;
 }
 
 @ObjectType()
 export class Bookings {
-    @Field(() => [Booking])
-    list: Booking[];
+	@Field(() => [Booking])
+	list: Booking[];
 
-    @Field(() => [TotalCounter], { nullable: true })
-    metaCounter: TotalCounter[];
+	@Field(() => [TotalCounter], { nullable: true })
+	metaCounter: TotalCounter[];
 }

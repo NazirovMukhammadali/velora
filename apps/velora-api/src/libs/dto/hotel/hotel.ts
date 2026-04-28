@@ -6,63 +6,63 @@ import { TotalCounter } from '../member/member';
 
 @ObjectType()
 export class Hotel {
-    @Field(() => String)
-    _id: ObjectId;
+	@Field(() => String)
+	_id: ObjectId;
 
-    @Field(() => String)
-    hotelName: string;
+	@Field(() => String)
+	hotelName: string;
 
-    @Field(() => String)
-    hotelLocation: string;
+	@Field(() => String)
+	hotelLocation: string;
 
-    @Field(() => String)
-    hotelAddress: string;
+	@Field(() => String)
+	hotelAddress: string;
 
-    @Field(() => Number)
-    hotelPrice: number;
+	@Field(() => Number)
+	hotelPrice: number;
 
-    @Field(() => Int)
-    hotelStars: number;
+	@Field(() => Int)
+	hotelStars: number;
 
-    @Field(() => Int)
-    availableRooms: number;
+	@Field(() => Int)
+	availableRooms: number;
 
-    @Field(() => [String])
-    hotelImages: string[];
+	@Field(() => [String])
+	hotelImages: string[];
 
-    @Field(() => String, { nullable: true })
-    hotelDesc?: string;
+	@Field(() => String, { nullable: true })
+	hotelDesc?: string;
 
-    @Field(() => HotelStatus)
-    hotelStatus: HotelStatus;
+	@Field(() => HotelStatus)
+	hotelStatus: HotelStatus;
 
-    @Field(() => Int)
-    hotelLikes: number;
+	@Field(() => Int)
+	hotelLikes: number;
 
-    @Field(() => Int)
-    hotelViews: number;
+	@Field(() => Int)
+	hotelViews: number;
 
-    @Field(() => Int)
-    hotelComments: number;
+	@Field(() => Int)
+	hotelComments: number;
 
-    @Field(() => Int)
-    hotelRank: number;
+	@Field(() => Int)
+	hotelRank: number;
 
-    @Field(() => Date)
-    createdAt: Date;
+	@Field(() => Date)
+	createdAt: Date;
 
-    @Field(() => Date)
-    updatedAt: Date;
+	@Field(() => Date)
+	updatedAt: Date;
 
-    @Field(() => [MeLiked], { nullable: true })
-    meLiked?: MeLiked[];
+	@Field(() => [MeLiked], { nullable: true })
+	meLiked?: MeLiked[];
 }
 
 @ObjectType()
 export class Hotels {
-    @Field(() => [Hotel])
-    list: Hotel[];
+	@Field(() => [Hotel])
+	list: Hotel[];
 
-    @Field(() => [TotalCounter], { nullable: true })
-    metaCounter: TotalCounter[];
+	@Field(() => [TotalCounter], { nullable: true })
+	metaCounter: TotalCounter[];
 }

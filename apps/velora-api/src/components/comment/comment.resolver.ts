@@ -1,72 +1,67 @@
-import { UseGuards } from "@nestjs/common";
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { AuthGuard } from "../auth/guards/auth.guard";
-import { CommentInput, CommentsInquiry } from "../../libs/dto/comment/comment.input";
-import { AuthMember } from "../auth/decorators/authMember.decorator";
-import { Types } from "mongoose";
-import { CommentService } from "./comment.service";
-import { AgentReviewStats, Comment, Comments } from "../../libs/dto/comment/comment";
-import { CommentUpdate } from "../../libs/dto/comment/comment.update";
-import { shapeIntoMongoObjectId } from "../../libs/config";
-import { WithoutGuard } from "../auth/guards/without.guard";
-import { Roles } from "../auth/decorators/roles.decorator";
-import { MemberType } from "../../libs/enums/member.enum";
-import { RolesGuard } from "../auth/guards/roles.guard";
+import { UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { CommentInput, CommentsInquiry } from '../../libs/dto/comment/comment.input';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
+import { Types } from 'mongoose';
+import { CommentService } from './comment.service';
+import { AgentReviewStats, Comment, Comments } from '../../libs/dto/comment/comment';
+import { CommentUpdate } from '../../libs/dto/comment/comment.update';
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { MemberType } from '../../libs/enums/member.enum';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Resolver()
 export class CommentResolver {
-    constructor(private readonly commentService: CommentService) { }
+	constructor(private readonly commentService: CommentService) {}
 
-    @UseGuards(AuthGuard)
-    @Mutation(() => Comment)
-    public async createComment(
-        @Args("input") input: CommentInput,
-        @AuthMember("_id") memberId: Types.ObjectId
-    ): Promise<Comment> {
-        return await this.commentService.createComment(memberId, input);
-    }
+	@UseGuards(AuthGuard)
+	@Mutation(() => Comment)
+	public async createComment(
+		@Args('input') input: CommentInput,
+		@AuthMember('_id') memberId: Types.ObjectId,
+	): Promise<Comment> {
+		return await this.commentService.createComment(memberId, input);
+	}
 
-    @UseGuards(AuthGuard)
-    @Mutation(() => Comment)
-    public async updateComment(
-        @Args("input") input: CommentUpdate,
-        @AuthMember("_id") memberId: Types.ObjectId
-    ): Promise<Comment> {
-        input._id = shapeIntoMongoObjectId(input._id);
-        return await this.commentService.updateComment(memberId, input);
-    }
+	@UseGuards(AuthGuard)
+	@Mutation(() => Comment)
+	public async updateComment(
+		@Args('input') input: CommentUpdate,
+		@AuthMember('_id') memberId: Types.ObjectId,
+	): Promise<Comment> {
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.commentService.updateComment(memberId, input);
+	}
 
-    @UseGuards(WithoutGuard)
-    @Query(() => Comments)
-    public async getComments(
-        @Args("input") input: CommentsInquiry,
-        @AuthMember("_id") memberId: Types.ObjectId | null
-    ): Promise<Comments> {
-        input.search.commentRefId = shapeIntoMongoObjectId(
-            input.search.commentRefId
-        );
-        return await this.commentService.getComments(memberId, input);
-    }
+	@UseGuards(WithoutGuard)
+	@Query(() => Comments)
+	public async getComments(
+		@Args('input') input: CommentsInquiry,
+		@AuthMember('_id') memberId: Types.ObjectId | null,
+	): Promise<Comments> {
+		input.search.commentRefId = shapeIntoMongoObjectId(input.search.commentRefId);
+		return await this.commentService.getComments(memberId, input);
+	}
 
-    @UseGuards(WithoutGuard)
-    @Query(() => AgentReviewStats)
-    public async getAgentReviewStats(
-        @Args("agentId") agentId: string,
-        @AuthMember("_id") memberId: Types.ObjectId | null
-    ): Promise<AgentReviewStats> {
-        return await this.commentService.getAgentReviewStats(memberId, shapeIntoMongoObjectId(agentId));
-    }
+	@UseGuards(WithoutGuard)
+	@Query(() => AgentReviewStats)
+	public async getAgentReviewStats(
+		@Args('agentId') agentId: string,
+		@AuthMember('_id') memberId: Types.ObjectId | null,
+	): Promise<AgentReviewStats> {
+		return await this.commentService.getAgentReviewStats(memberId, shapeIntoMongoObjectId(agentId));
+	}
 
+	/* ADMIN */
 
-    /* ADMIN */
-
-    @Roles(MemberType.ADMIN)
-    @UseGuards(RolesGuard)
-    @Mutation(() => Comment)
-    public async removeCommentByAdmin(
-        @Args("commentId") input: string
-    ): Promise<Comment> {
-        const commentId = shapeIntoMongoObjectId(input);
-        return await this.commentService.removeCommentByAdmin(commentId);
-    }
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation(() => Comment)
+	public async removeCommentByAdmin(@Args('commentId') input: string): Promise<Comment> {
+		const commentId = shapeIntoMongoObjectId(input);
+		return await this.commentService.removeCommentByAdmin(commentId);
+	}
 }

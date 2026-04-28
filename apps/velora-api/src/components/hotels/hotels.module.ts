@@ -7,11 +7,7 @@ import { HotelsResolver } from './hotels.resolver';
 import { HotelsService } from './hotels.service';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: 'Hotel', schema: HotelSchema }]),
-        LikeModule,
-        ViewModule,
-    ],
-    providers: [HotelsResolver, HotelsService],
+	imports: [MongooseModule.forFeature([{ name: 'Hotel', schema: HotelSchema }]), LikeModule, ViewModule],
+	providers: [HotelsResolver, HotelsService],
 })
 export class HotelsModule {}

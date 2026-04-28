@@ -5,54 +5,54 @@ import { RentcarCategory, RentcarStatus, TransmissionType } from '../../enums/re
 
 @InputType()
 export class RentcarUpdate {
-    @IsNotEmpty()
-    @Field(() => String)
-    _id: Types.ObjectId;
+	@IsNotEmpty()
+	@Field(() => String)
+	_id: Types.ObjectId;
 
-    @IsOptional()
-    @Length(3, 120)
-    @Field(() => String, { nullable: true })
-    carTitle?: string;
+	@IsOptional()
+	@Length(3, 120)
+	@Field(() => String, { nullable: true })
+	carTitle?: string;
 
-    @IsOptional()
-    @Length(2, 100)
-    @Field(() => String, { nullable: true })
-    carLocation?: string;
+	@IsOptional()
+	@Length(2, 100)
+	@Field(() => String, { nullable: true })
+	carLocation?: string;
 
-    @IsOptional()
-    @Field(() => RentcarCategory, { nullable: true })
-    carCategory?: RentcarCategory;
+	@IsOptional()
+	@Field(() => RentcarCategory, { nullable: true })
+	carCategory?: RentcarCategory;
 
-    @IsOptional()
-    @Field(() => TransmissionType, { nullable: true })
-    transmission?: TransmissionType;
+	@IsOptional()
+	@Field(() => TransmissionType, { nullable: true })
+	transmission?: TransmissionType;
 
-    @IsOptional()
-    @Min(1)
-    @Max(16)
-    @Field(() => Int, { nullable: true })
-    seats?: number;
+	@IsOptional()
+	@Min(1)
+	@Max(16)
+	@Field(() => Int, { nullable: true })
+	seats?: number;
 
-    @IsOptional()
-    @Min(0)
-    @Field(() => Number, { nullable: true })
-    dailyPrice?: number;
+	@IsOptional()
+	@Min(0)
+	@Field(() => Number, { nullable: true })
+	dailyPrice?: number;
 
-    @IsOptional()
-    @Min(0)
-    @Field(() => Int, { nullable: true })
-    availableCars?: number;
+	@IsOptional()
+	@Min(0)
+	@Field(() => Int, { nullable: true })
+	availableCars?: number;
 
-    @IsOptional()
-    @Field(() => [String], { nullable: true })
-    carImages?: string[];
+	@IsOptional()
+	@Field(() => [String], { nullable: true })
+	carImages?: string[];
 
-    @IsOptional()
-    @Length(5, 700)
-    @Field(() => String, { nullable: true })
-    carDesc?: string;
+	@IsOptional()
+	@Length(5, 700)
+	@Field(() => String, { nullable: true })
+	carDesc?: string;
 
-    @IsOptional()
-    @Field(() => RentcarStatus, { nullable: true })
-    rentcarStatus?: RentcarStatus;
+	@IsOptional()
+	@Field(() => RentcarStatus, { nullable: true })
+	rentcarStatus?: RentcarStatus;
 }
