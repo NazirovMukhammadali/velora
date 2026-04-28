@@ -20,7 +20,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/velora-api/test/jest-e2e.json",
-    "test:integration": "jest --config ./apps/velora-api/test/jest-e2e.json bookings.integration.e2e-spec.ts --runInBand",
+    "test:integration": "RUN_MONGO_MEMORY_TESTS=true jest --config ./apps/velora-api/test/jest-e2e.json bookings.integration.e2e-spec.ts critical-flows.integration.e2e-spec.ts --runInBand",
     "prepare": "husky",
     "seed:flights": "ts-node apps/velora-api/src/seed/flights.seed.ts",
     "seed:tours": "ts-node apps/velora-api/src/seed/tours.seed.ts",
