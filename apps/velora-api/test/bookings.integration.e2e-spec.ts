@@ -8,6 +8,7 @@ import mongoose, { Model, Types } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mkdirSync } from 'fs';
 import { resolve } from 'path';
+import { AuthModule } from '../src/components/auth/auth.module';
 import { BookingsModule } from '../src/components/bookings/bookings.module';
 import { BookingStatus } from '../src/libs/enums/booking.enum';
 import { TourStatus } from '../src/libs/enums/tour.enum';
@@ -85,6 +86,7 @@ describeIntegration('Bookings GraphQL (integration, mongo-memory)', () => {
 					driver: ApolloDriver,
 					autoSchemaFile: true,
 				}),
+				AuthModule,
 				BookingsModule,
 			],
 		}).compile();

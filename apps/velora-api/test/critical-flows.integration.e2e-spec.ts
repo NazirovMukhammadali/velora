@@ -12,6 +12,7 @@ import { BookingStatus } from '../src/libs/enums/booking.enum';
 import { MemberAuthType, MemberStatus, MemberType } from '../src/libs/enums/member.enum';
 import { TourStatus } from '../src/libs/enums/tour.enum';
 import { FlightCabinClass, FlightStatus } from '../src/libs/enums/flight.enum';
+import { AuthModule } from '../src/components/auth/auth.module';
 import { CommentModule } from '../src/components/comment/comment.module';
 import { FlightsModule } from '../src/components/flights/flights.module';
 
@@ -91,6 +92,7 @@ describeIntegration('Critical flows (integration, mongo-memory)', () => {
 					driver: ApolloDriver,
 					autoSchemaFile: true,
 				}),
+				AuthModule,
 				CommentModule,
 				FlightsModule,
 			],
