@@ -23,7 +23,8 @@
    - `checkAuth`
    - `getPopularTours`
    - `createTourBooking`
-   - `hasConfirmedOrPaidTourBooking`
+   - `getMyTourBookings`
+   - `confirmTourBookingByAdmin`
    - `getAgentReviewStats`
 
 ## 3) Incident triage
@@ -39,7 +40,7 @@
 
 1. Validate booking records for user-agent pair:
    - `bookingType=TOUR`
-   - `bookingStatus in [CONFIRMED, PAID]`
+   - `bookingStatus=CONFIRMED`
 2. Verify review target is `AGENT` and writer is `USER`.
 3. Confirm GraphQL request includes auth token.
 

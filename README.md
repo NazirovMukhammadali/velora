@@ -68,6 +68,15 @@ npm run seed:tours
   - `npm run build`
   - `npm run test -- --runInBand`
   - `npm run test:integration`
+- Current temporary policy: lint is non-blocking in CI while global lint debt is cleaned in a separate task.
+
+## Booking contract (locked)
+
+- `createTourBooking` always creates with `PENDING` status.
+- `getMyTourBookings` lists only the authenticated member's tour bookings.
+- `confirmTourBookingByAdmin` changes booking status from `PENDING` to `CONFIRMED`.
+- Review/rating write access requires at least one `CONFIRMED` booking with the target agent.
+- Real payment integration is intentionally out of scope for this portfolio MVP.
 
 ## Operational notes
 
@@ -81,3 +90,5 @@ npm run seed:tours
 ## Runbook
 
 See `docs/RUNBOOK.md` for release and incident response procedures.
+See `docs/BOOKING_DEMO_FLOW.md` for the end-to-end demo scenario.
+See `docs/TECH_DEBT_SCOPE.md` for separated debt handling policy.
