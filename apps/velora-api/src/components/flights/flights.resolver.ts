@@ -16,6 +16,10 @@ import { MemberType } from '../../libs/enums/member.enum';
 
 @Resolver()
 export class FlightsResolver {
+    /**
+     * Discovery-only resolver.
+     * By contract, flights do not own booking mutations in MVP.
+     */
     constructor(private readonly flightsService: FlightsService) { }
 
     @Roles(MemberType.ADMIN)

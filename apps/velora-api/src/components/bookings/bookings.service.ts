@@ -16,6 +16,11 @@ import { T } from '../../libs/types/common';
 
 @Injectable()
 export class BookingsService {
+	/**
+	 * Transactional booking domain contract (MVP):
+	 * - Bookings are intentionally tour-only.
+	 * - Flights/Hotels/Rentcar remain discovery domains and do not create bookings.
+	 */
 	constructor(
 		@InjectModel('Booking') private readonly bookingModel: Model<Booking>,
 		@InjectModel('Tour') private readonly tourModel: Model<Tour>,

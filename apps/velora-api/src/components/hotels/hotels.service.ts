@@ -17,6 +17,12 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class HotelsService {
+    /**
+     * Domain contract:
+     * Hotels is a discovery-only domain in MVP.
+     * Responsibilities: search, list, detail (plus non-transactional engagement stats like views/likes).
+     * Booking/confirmation/review transactions are intentionally handled in tours + bookings domains.
+     */
     constructor(
         @InjectModel('Hotel') private readonly hotelModel: Model<Hotel>,
         private readonly likeService: LikeService,

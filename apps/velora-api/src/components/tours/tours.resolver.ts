@@ -16,6 +16,10 @@ import { ToursService } from './tours.service';
 
 @Resolver()
 export class ToursResolver {
+    /**
+     * Core transactional domain resolver.
+     * Tours own package management and are the only domain connected to booking transactions in MVP.
+     */
     constructor(private readonly toursService: ToursService) { }
 
     @Roles(MemberType.AGENT)

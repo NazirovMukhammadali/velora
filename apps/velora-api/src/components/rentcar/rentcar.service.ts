@@ -17,6 +17,12 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class RentcarService {
+    /**
+     * Domain contract:
+     * Rentcar is a discovery-only domain in MVP.
+     * Responsibilities: search, list, detail (plus non-transactional engagement stats like views/likes).
+     * Booking/confirmation/review transactions are intentionally handled in tours + bookings domains.
+     */
     constructor(
         @InjectModel('Rentcar') private readonly rentcarModel: Model<Rentcar>,
         private readonly likeService: LikeService,

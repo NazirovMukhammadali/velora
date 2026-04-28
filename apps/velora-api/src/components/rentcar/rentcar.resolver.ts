@@ -16,6 +16,10 @@ import { RentcarService } from './rentcar.service';
 
 @Resolver()
 export class RentcarResolver {
+    /**
+     * Discovery-only resolver.
+     * By contract, rentcar does not own booking mutations in MVP.
+     */
     constructor(private readonly rentcarService: RentcarService) { }
 
     @Roles(MemberType.ADMIN)

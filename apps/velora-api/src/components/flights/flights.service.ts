@@ -16,6 +16,12 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 
 @Injectable()
 export class FlightsService {
+    /**
+     * Domain contract:
+     * Flights is a discovery-only domain in MVP.
+     * Responsibilities: search, list, detail (plus non-transactional engagement stats like views/likes).
+     * Booking/confirmation/review transactions are intentionally handled in tours + bookings domains.
+     */
     constructor(
         @InjectModel('Flight') private readonly flightModel: Model<Flight>,
         private readonly likeService: LikeService,

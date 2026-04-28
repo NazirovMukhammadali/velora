@@ -16,6 +16,10 @@ import { HotelsService } from './hotels.service';
 
 @Resolver()
 export class HotelsResolver {
+    /**
+     * Discovery-only resolver.
+     * By contract, hotels do not own booking mutations in MVP.
+     */
     constructor(private readonly hotelsService: HotelsService) { }
 
     @Roles(MemberType.ADMIN)

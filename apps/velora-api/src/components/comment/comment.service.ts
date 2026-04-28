@@ -14,6 +14,10 @@ import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class CommentService {
+	/**
+	 * Review write contract:
+	 * Comments for agents are transaction-gated and require confirmed TOUR booking.
+	 */
 	constructor(
 		@InjectModel('Comment') private readonly commentModel: Model<Comment>,
 		private readonly memberService: MemberService,

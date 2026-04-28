@@ -10,6 +10,18 @@ It focuses on clean architecture, maintainable code, and practical domain bounda
 - `bookings` (minimal workflow: create, list mine, confirm)
 - `comment` (agent-level review/rating with purchase gate)
 
+## Domain responsibilities (locked)
+
+- **Flights / Hotels / Rentcar**: search and discovery domains only.
+  - Implemented responsibilities: search filters, list queries, detail view queries.
+  - Not in scope: booking transactions for these three domains.
+- **Tours**: core transactional domain.
+  - Agent creates tour packages.
+  - User views packages.
+  - User creates booking via `createTourBooking`.
+  - Admin confirms booking via `confirmTourBookingByAdmin`.
+  - User review/rating write requires confirmed tour booking with target agent.
+
 ## Requirements
 
 - Node.js 20+
@@ -72,6 +84,7 @@ npm run seed:tours
 
 ## Booking contract (locked)
 
+- Booking domain is intentionally **tour-only** in MVP.
 - `createTourBooking` always creates with `PENDING` status.
 - `getMyTourBookings` lists only the authenticated member's tour bookings.
 - `confirmTourBookingByAdmin` changes booking status from `PENDING` to `CONFIRMED`.
