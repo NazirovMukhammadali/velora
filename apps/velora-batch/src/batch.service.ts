@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Member } from 'apps/nestar-api/src/libs/dto/member/member';
-import { Property } from 'apps/nestar-api/src/libs/dto/property/property';
-import { MemberStatus, MemberType } from 'apps/nestar-api/src/libs/enums/member.enum';
-import { PropertyStatus } from 'apps/nestar-api/src/libs/enums/property.enum';
+import { Member } from 'apps/velora-api/src/libs/dto/member/member';
+import { Property } from 'apps/velora-api/src/libs/dto/property/property';
+import { MemberStatus, MemberType } from 'apps/velora-api/src/libs/enums/member.enum';
+import { PropertyStatus } from 'apps/velora-api/src/libs/enums/property.enum';
 import { Model } from 'mongoose';
 
 @Injectable()
