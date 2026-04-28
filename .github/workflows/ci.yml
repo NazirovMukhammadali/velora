@@ -36,5 +36,8 @@ jobs:
       - name: Integration e2e (mongo-memory)
         env:
           SECRET_TOKEN: ci-secret-token
+          RUN_MONGO_MEMORY_TESTS: true
+          MONGOMS_VERSION: 7.0.14
+          MONGOMS_DISTRO: ubuntu-22.04
         run: npm run test:integration
         timeout-minutes: 10
