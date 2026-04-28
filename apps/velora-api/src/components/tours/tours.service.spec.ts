@@ -24,7 +24,6 @@ describe('ToursService', () => {
             findOneAndUpdate: jest.fn(),
             findOne: jest.fn(),
             findByIdAndUpdate: jest.fn(),
-            findOneAndDelete: jest.fn(),
             aggregate: jest.fn(),
         };
         memberService = {
@@ -165,9 +164,9 @@ describe('ToursService', () => {
         ).rejects.toBeInstanceOf(BadRequestException);
     });
 
-    it('hard removes tour by admin when already soft deleted', async () => {
+    it('soft deletes tour by admin', async () => {
         const deleted = { _id: new Types.ObjectId(), tourStatus: TourStatus.DELETE };
-        tourModel.findOneAndDelete.mockReturnValue(execMock(deleted));
+        tourModel.findOneAndUpdate.mockReturnValue(execMock(deleted));
 
         const result = await service.removeTourByAdmin(deleted._id as any);
 

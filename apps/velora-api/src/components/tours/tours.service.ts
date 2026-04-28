@@ -291,11 +291,13 @@ export class ToursService {
     }
 
     public async removeTourByAdmin(tourId: Types.ObjectId): Promise<Tour> {
-        const search: T = {
-            _id: tourId,
-            tourStatus: TourStatus.DELETE,
-        };
-        const result = await this.tourModel.findOneAndDelete(search).exec();
+        const result = await this.tourModel
+            .findOneAndUpdate(
+                { _id: tourId, tourStatus: { $ne: TourStatus.DELETE } },
+                { tourStatus: TourStatus.DELETE },
+                { new: true },
+            )
+            .exec();
         if (!result) throw new BadRequestException(Message.REMOVE_FAILED);
 
         return result;
