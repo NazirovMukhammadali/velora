@@ -1,5 +1,26 @@
 # Velora API
 
+[![NestJS](https://img.shields.io/badge/NestJS-v10-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![GraphQL](https://img.shields.io/badge/GraphQL-API-E10098?logo=graphql&logoColor=white)](https://graphql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Mongoose](https://img.shields.io/badge/Mongoose-ODM-880000?logo=mongoose&logoColor=white)](https://mongoosejs.com/)
+[![JWT](https://img.shields.io/badge/Auth-JWT-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Jest](https://img.shields.io/badge/Tests-Jest-C21325?logo=jest&logoColor=white)](https://jestjs.io/)
+[![ESLint](https://img.shields.io/badge/Lint-ESLint-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
+[![Prettier](https://img.shields.io/badge/Format-Prettier-F7B93E?logo=prettier&logoColor=1A2B34)](https://prettier.io/)
+[![CI](https://img.shields.io/github/actions/workflow/status/NazirovMukhammadali/velora/ci.yml?branch=develop&label=CI)](https://github.com/NazirovMukhammadali/velora/actions/workflows/ci.yml)
+
+[![Flights](https://img.shields.io/badge/Domain-Flights-blue)](#domain-responsibilities-locked)
+[![Hotels](https://img.shields.io/badge/Domain-Hotels-blue)](#domain-responsibilities-locked)
+[![Rentcar](https://img.shields.io/badge/Domain-Rentcar-blue)](#domain-responsibilities-locked)
+[![Tours](https://img.shields.io/badge/Domain-Tours-transactional-orange)](#domain-responsibilities-locked)
+[![Bookings](https://img.shields.io/badge/Flow-Tour--only%20booking-success)](#booking-contract-locked)
+[![Review Gate](https://img.shields.io/badge/Review-Confirmed%20booking%20required-success)](#booking-contract-locked)
+[![Follow](https://img.shields.io/badge/Feature-Follow-informational)](#core-modules)
+[![Like](https://img.shields.io/badge/Feature-Like-informational)](#core-modules)
+[![Chatbot](https://img.shields.io/badge/Feature-Rule--based%20assistant-informational)](#core-modules)
+
 Velora API is a portfolio-grade NestJS + GraphQL backend for a travel booking demo.
 It focuses on clean architecture, maintainable code, and practical domain boundaries without production-scale complexity.
 
