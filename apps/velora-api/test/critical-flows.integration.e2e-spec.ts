@@ -59,16 +59,22 @@ describeIntegration('Critical flows (integration, mongo-memory)', () => {
 
 	beforeAll(async () => {
 		process.env.SECRET_TOKEN = process.env.SECRET_TOKEN ?? 'integration-secret';
-		const downloadDir = resolve(process.cwd(), '.cache', 'mongodb-memory-server');
-		mkdirSync(downloadDir, { recursive: true });
-		process.env.MONGOMS_DOWNLOAD_DIR = downloadDir;
-		const mongoBinaryVersion = process.env.MONGOMS_VERSION ?? '7.0.14';
-		console.log(`[critical-flows.integration] starting MongoMemoryServer (version=${mongoBinaryVersion})`);
-		mongod = await MongoMemoryServer.create({
-			binary: { version: mongoBinaryVersion },
-		});
-		mongoUri = mongod.getUri();
-		console.log('[critical-flows.integration] MongoMemoryServer ready');
+		const externalMongoUri = process.env.MONGO_TEST_URI;
+		if (externalMongoUri) {
+			mongoUri = externalMongoUri;
+			console.log(`[critical-flows.integration] using external MongoDB (${mongoUri})`);
+		} else {
+			const downloadDir = resolve(process.cwd(), '.cache', 'mongodb-memory-server');
+			mkdirSync(downloadDir, { recursive: true });
+			process.env.MONGOMS_DOWNLOAD_DIR = downloadDir;
+			const mongoBinaryVersion = process.env.MONGOMS_VERSION ?? '7.0.14';
+			console.log(`[critical-flows.integration] starting MongoMemoryServer (version=${mongoBinaryVersion})`);
+			mongod = await MongoMemoryServer.create({
+				binary: { version: mongoBinaryVersion },
+			});
+			mongoUri = mongod.getUri();
+			console.log('[critical-flows.integration] MongoMemoryServer ready');
+		}
 	});
 
 	afterAll(async () => {

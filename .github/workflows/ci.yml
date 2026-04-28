@@ -10,6 +10,16 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,7 +47,6 @@ jobs:
         env:
           SECRET_TOKEN: ci-secret-token
           RUN_MONGO_MEMORY_TESTS: true
-          MONGOMS_VERSION: 7.0.14
-          MONGOMS_DISTRO: ubuntu-22.04
+          MONGO_TEST_URI: mongodb://127.0.0.1:27017/velora_ci_test
         run: npm run test:integration
         timeout-minutes: 10
