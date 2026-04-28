@@ -1,17 +1,13 @@
 # Velora API
 
-Velora API is a NestJS + GraphQL backend for a travel marketplace with domain-separated flows:
-
-- `Flights`, `Hotels`, `Rentcar` are primary catalog domains.
-- `Tours` are agent-centric and stay separate from primary catalog tabs.
-- `Most Popular Tour Packages` are ranked using sold-count oriented logic.
-- `Bookings` provide purchase truth for gated workflows (reviews/ratings).
+Velora API is a portfolio-grade NestJS + GraphQL backend for a travel booking demo.
+It focuses on clean architecture, maintainable code, and practical domain boundaries without production-scale complexity.
 
 ## Core modules
 
 - `member`, `auth`, `follow`, `like`, `view`
 - `flights`, `hotels`, `rentcar`, `tours`
-- `bookings` (tour purchase source of truth)
+- `bookings` (minimal workflow: create, list mine, confirm)
 - `comment` (agent-level review/rating with purchase gate)
 
 ## Requirements
@@ -22,15 +18,10 @@ Velora API is a NestJS + GraphQL backend for a travel marketplace with domain-se
 
 ## Environment setup
 
-Create `.env` in repo root:
+Copy `.env.example` to `.env` and fill in values:
 
-```env
-NODE_ENV=development
-PORT=3003
-MONGO_DEV=mongodb://127.0.0.1:27017/velora_dev
-MONGO_PROD=mongodb://127.0.0.1:27017/velora_prod
-SECRET_TOKEN=replace-with-strong-secret
-CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+```bash
+cp .env.example .env
 ```
 
 ## Install and run
@@ -85,7 +76,7 @@ npm run seed:tours
   - CORS origins are restricted via `CORS_ORIGINS`.
 - Review write policy:
   - Only `USER` can write review/rating on `AGENT`.
-  - Writer must have at least one `CONFIRMED` or `PAID` `TOUR` booking with that agent.
+  - Writer must have at least one `CONFIRMED` `TOUR` booking with that agent.
 
 ## Runbook
 
