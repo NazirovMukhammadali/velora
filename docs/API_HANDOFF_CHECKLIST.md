@@ -13,6 +13,7 @@ Use this checklist before connecting `velora-web` to `velora-api`.
 
 - [ ] Primary search tabs: `Flights`, `Hotels`, `Rentcar` only
 - [ ] `Tours` stay in agent flow (not primary tab)
+- [ ] `Flights/Hotels/Rentcar` are discovery-only (`search`, `list`, `detail`) and must not call booking mutations
 - [ ] Booking status lifecycle: `PENDING` -> `CONFIRMED`
 - [ ] No real payment integration in this MVP
 - [ ] Review write access requires `CONFIRMED` tour booking
@@ -26,7 +27,22 @@ Use this checklist before connecting `velora-web` to `velora-api`.
 
 ## 4) GraphQL operations frontend needs first
 
+### Discovery domains (no booking mutations)
+#### Flights
+- `getFlights`
+- `getFlightDetail`
+
+#### Hotels
+- `getHotels`
+- `getHotelDetail`
+
+#### Rentcar
+- `getRentcars`
+- `getRentcarDetail`
+
 ### Booking
+- **Tour-only** booking contract:
+  - Do not implement/use `createFlightBooking`, `createHotelBooking`, `createRentcarBooking`
 - `createTourBooking`
 - `getMyTourBookings`
 - `confirmTourBookingByAdmin` (admin panel side)
