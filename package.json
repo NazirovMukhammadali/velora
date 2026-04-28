@@ -25,7 +25,8 @@
     "seed:flights": "ts-node apps/velora-api/src/seed/flights.seed.ts",
     "seed:tours": "ts-node apps/velora-api/src/seed/tours.seed.ts",
     "seed:hotels": "ts-node apps/velora-api/src/seed/hotels.seed.ts",
-    "seed:rentcar": "ts-node apps/velora-api/src/seed/rentcar.seed.ts"
+    "seed:rentcar": "ts-node apps/velora-api/src/seed/rentcar.seed.ts",
+    "seed:bookings": "ts-node apps/velora-api/src/seed/bookings.seed.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,json,md}": [

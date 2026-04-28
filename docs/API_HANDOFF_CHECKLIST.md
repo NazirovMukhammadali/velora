@@ -64,3 +64,4 @@ Use this checklist before connecting `velora-web` to `velora-api`.
 - Avoid cross-cutting refactors while frontend is integrating.
 - Defer global lint debt cleanup to dedicated technical debt phase.
 - Keep CI build/test checks blocking; lint remains temporarily non-blocking.
+- Use `docs/GRAPHQL_CONTRACT_OPERATIONS.md` as the default operation contract reference.
