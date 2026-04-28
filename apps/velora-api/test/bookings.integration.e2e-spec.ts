@@ -4,7 +4,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import request from 'supertest';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mkdirSync } from 'fs';
 import { resolve } from 'path';
@@ -56,12 +56,16 @@ describeIntegration('Bookings GraphQL (integration, mongo-memory)', () => {
 		const downloadDir = resolve(process.cwd(), '.cache', 'mongodb-memory-server');
 		mkdirSync(downloadDir, { recursive: true });
 		process.env.MONGOMS_DOWNLOAD_DIR = downloadDir;
+		console.log('[bookings.integration] starting MongoMemoryServer');
 		mongod = await MongoMemoryServer.create();
 		mongoUri = mongod.getUri();
+		console.log('[bookings.integration] MongoMemoryServer ready');
 	});
 
 	afterAll(async () => {
 		if (mongod) await mongod.stop();
+		await mongoose.disconnect();
+		console.log('[bookings.integration] cleanup finished');
 	});
 
 	beforeEach(async () => {
@@ -141,5 +145,6 @@ describeIntegration('Bookings GraphQL (integration, mongo-memory)', () => {
 
 		expect(confirmResponse.body.errors).toBeUndefined();
 		expect(confirmResponse.body.data.confirmTourBookingByAdmin.bookingStatus).toBe(BookingStatus.CONFIRMED);
+		console.log('[bookings.integration] test flow finished');
 	});
 });

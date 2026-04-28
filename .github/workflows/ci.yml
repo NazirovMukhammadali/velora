@@ -37,3 +37,4 @@ jobs:
         env:
           SECRET_TOKEN: ci-secret-token
         run: npm run test:integration
+        timeout-minutes: 10
