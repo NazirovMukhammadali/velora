@@ -92,3 +92,4 @@ npm run seed:tours
 See `docs/RUNBOOK.md` for release and incident response procedures.
 See `docs/BOOKING_DEMO_FLOW.md` for the end-to-end demo scenario.
 See `docs/TECH_DEBT_SCOPE.md` for separated debt handling policy.
+See `docs/API_HANDOFF_CHECKLIST.md` before starting frontend integration.
