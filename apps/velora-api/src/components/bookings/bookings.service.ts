@@ -100,6 +100,22 @@ export class BookingsService {
 			.exec();
 		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
+		const updatedTour = await this.tourModel
+			.findOneAndUpdate(
+				{ _id: result.bookingRefId, tourStatus: { $ne: TourStatus.DELETE } },
+				{ $inc: { tourSoldCount: 1 } },
+				{ new: true },
+			)
+			.exec();
+
+		// Keep booking and tour counters consistent when confirmation succeeds.
+		if (!updatedTour) {
+			await this.bookingModel
+				.findByIdAndUpdate(result._id, { bookingStatus: BookingStatus.PENDING })
+				.exec();
+			throw new BadRequestException(Message.UPDATE_FAILED);
+		}
+
 		return result;
 	}
 }

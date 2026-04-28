@@ -22,9 +22,11 @@ describe('BookingsService', () => {
 			aggregate: jest.fn(),
 			countDocuments: jest.fn(),
 			findOneAndUpdate: jest.fn(),
+			findByIdAndUpdate: jest.fn(),
 		};
 		tourModel = {
 			findOne: jest.fn(),
+			findOneAndUpdate: jest.fn(),
 		};
 		service = new BookingsService(bookingModel, tourModel);
 	});
@@ -76,11 +78,32 @@ describe('BookingsService', () => {
 	});
 
 	it('confirms pending booking by admin', async () => {
-		const updated = { _id: new Types.ObjectId(), bookingStatus: BookingStatus.CONFIRMED };
+		const updated = {
+			_id: new Types.ObjectId(),
+			bookingRefId: new Types.ObjectId(),
+			bookingStatus: BookingStatus.CONFIRMED,
+		};
 		bookingModel.findOneAndUpdate.mockReturnValue(execMock(updated));
+		tourModel.findOneAndUpdate.mockReturnValue(execMock({ _id: updated.bookingRefId, tourSoldCount: 3 }));
 		const result = await service.confirmBookingByAdmin({
 			_id: updated._id,
 		});
 		expect(result.bookingStatus).toBe(BookingStatus.CONFIRMED);
+	});
+
+	it('rolls booking status back if tour counter update fails', async () => {
+		const updated = {
+			_id: new Types.ObjectId(),
+			bookingRefId: new Types.ObjectId(),
+			bookingStatus: BookingStatus.CONFIRMED,
+		};
+		bookingModel.findOneAndUpdate.mockReturnValue(execMock(updated));
+		tourModel.findOneAndUpdate.mockReturnValue(execMock(null));
+		bookingModel.findByIdAndUpdate.mockReturnValue(execMock({}));
+
+		await expect(service.confirmBookingByAdmin({ _id: updated._id } as any)).rejects.toBeInstanceOf(BadRequestException);
+		expect(bookingModel.findByIdAndUpdate).toHaveBeenCalledWith(updated._id, {
+			bookingStatus: BookingStatus.PENDING,
+		});
 	});
 });
