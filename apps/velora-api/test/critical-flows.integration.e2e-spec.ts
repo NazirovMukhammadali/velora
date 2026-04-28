@@ -48,6 +48,21 @@ jest.mock('../src/components/auth/guards/roles.guard', () => ({
 	},
 }));
 
+jest.mock('../src/components/auth/guards/without.guard', () => ({
+	WithoutGuard: class WithoutGuard {
+		canActivate(context: any) {
+			const req = context.getArgByIndex(2).req;
+			req.body.authMember = req.body.authMember ?? {
+				_id: authMemberId,
+				memberType: MemberType.USER,
+				memberStatus: MemberStatus.ACTIVE,
+				memberNick: 'integration-user',
+			};
+			return true;
+		}
+	},
+}));
+
 describeIntegration('Critical flows (integration, mongo-memory)', () => {
 	let app: INestApplication;
 	let mongod: MongoMemoryServer;
