@@ -56,8 +56,11 @@ describeIntegration('Bookings GraphQL (integration, mongo-memory)', () => {
 		const downloadDir = resolve(process.cwd(), '.cache', 'mongodb-memory-server');
 		mkdirSync(downloadDir, { recursive: true });
 		process.env.MONGOMS_DOWNLOAD_DIR = downloadDir;
-		console.log('[bookings.integration] starting MongoMemoryServer');
-		mongod = await MongoMemoryServer.create();
+		const mongoBinaryVersion = process.env.MONGOMS_VERSION ?? '7.0.14';
+		console.log(`[bookings.integration] starting MongoMemoryServer (version=${mongoBinaryVersion})`);
+		mongod = await MongoMemoryServer.create({
+			binary: { version: mongoBinaryVersion },
+		});
 		mongoUri = mongod.getUri();
 		console.log('[bookings.integration] MongoMemoryServer ready');
 	});
