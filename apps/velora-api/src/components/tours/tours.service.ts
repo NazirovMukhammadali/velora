@@ -166,7 +166,7 @@ export class ToursService {
 			}
 		}
 
-		targetTour.memberData = await this.memberService.getMember(null, targetTour.memberId);
+		targetTour.memberData = await this.memberService.getMember(null, shapeIntoMongoObjectId(targetTour.memberId));
 
 		if (memberId) {
 			const likeInput: LikeInput = {

@@ -82,7 +82,7 @@ describe('RentcarService', () => {
 		const result = await service.getRentcarDetail(memberId, new Types.ObjectId().toString());
 
 		expect(result.rentcarViews).toBe(3);
-		expect(result.meLiked[0].myFavorite).toBe(true);
+		expect(result.meLiked).toEqual([{ myFavorite: true }]);
 	});
 
 	it('throws if like target not found', async () => {

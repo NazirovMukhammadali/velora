@@ -78,7 +78,7 @@ describe('FlightsService', () => {
 		const result = await service.getFlightDetail(memberId, new Types.ObjectId().toString());
 
 		expect(result.flightViews).toBe(5);
-		expect(result.meLiked[0].myFavorite).toBe(true);
+		expect(result.meLiked).toEqual([{ myFavorite: true }]);
 	});
 
 	it('throws if like target flight missing', async () => {

@@ -48,6 +48,4 @@ export class MemberUpdate {
 	@Length(5, 12)
 	@Field(() => String, { nullable: true })
 	memberDesc?: string;
-
-	deletedAt?: Date;
 }

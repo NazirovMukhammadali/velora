@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { BatchModule } from '../src/batch.module';
 
 describe('VeloraBatchController (e2e)', () => {
@@ -16,6 +16,6 @@ describe('VeloraBatchController (e2e)', () => {
 	});
 
 	it('/ (GET)', () => {
-		return request(app.getHttpServer()).get('/').expect(200).expect('Hello World!');
+		return request(app.getHttpServer()).get('/').expect(200).expect('Welcome to Velora BATCH Server!');
 	});
 });

@@ -21,12 +21,26 @@ export class MemberInput {
 	memberPhone: string;
 
 	@IsOptional()
+	@IsIn([MemberType.USER, MemberType.AGENT])
 	@Field(() => MemberType, { nullable: true })
 	memberType?: MemberType;
 
 	@IsOptional()
 	@Field(() => MemberAuthType, { nullable: true })
 	memberAuthType?: MemberAuthType;
+}
+
+@InputType()
+export class ChangePasswordInput {
+	@IsNotEmpty()
+	@Length(3, 12)
+	@Field(() => String)
+	currentPassword: string;
+
+	@IsNotEmpty()
+	@Length(3, 12)
+	@Field(() => String)
+	newPassword: string;
 }
 
 @InputType()

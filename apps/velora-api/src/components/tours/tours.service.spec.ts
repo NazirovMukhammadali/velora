@@ -94,8 +94,8 @@ describe('ToursService', () => {
 		const result = await service.getTourDetail(memberId, tourId);
 
 		expect(viewService.recordView).toHaveBeenCalled();
-		expect(result.memberData.memberNick).toBe('agent');
-		expect(result.meLiked[0].myFavorite).toBe(true);
+		expect(result.memberData).toEqual(expect.objectContaining({ memberNick: 'agent' }));
+		expect(result.meLiked).toEqual([{ myFavorite: true }]);
 		expect(result.tourViews).toBe(2);
 	});
 

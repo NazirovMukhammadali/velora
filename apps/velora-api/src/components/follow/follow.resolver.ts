@@ -3,7 +3,7 @@ import { FollowService } from './follow.service';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
-import { Schema, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { Follower, Followers, Followings } from '../../libs/dto/follow/follow';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
@@ -18,7 +18,7 @@ export class FollowResolver {
 	public async subscribe(@Args('input') input: string, @AuthMember('_id') memberId: Types.ObjectId): Promise<Follower> {
 		const followingId = shapeIntoMongoObjectId(input);
 
-		return await this.followService.subscribe(memberId as unknown as Schema.Types.ObjectId, followingId);
+		return await this.followService.subscribe(memberId, followingId);
 	}
 
 	@UseGuards(AuthGuard)
@@ -28,7 +28,7 @@ export class FollowResolver {
 		@AuthMember('_id') memberId: Types.ObjectId,
 	): Promise<Follower> {
 		const followingId = shapeIntoMongoObjectId(input);
-		return await this.followService.unsubscribe(memberId as unknown as Schema.Types.ObjectId, followingId);
+		return await this.followService.unsubscribe(memberId, followingId);
 	}
 
 	@UseGuards(WithoutGuard)

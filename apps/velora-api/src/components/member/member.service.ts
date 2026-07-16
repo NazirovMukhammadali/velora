@@ -4,6 +4,7 @@ import { Model, ObjectId, Schema, Types } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
+import { TourStatus } from '../../libs/enums/tour.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
@@ -27,7 +28,16 @@ export class MemberService {
 	) {}
 
 	public async signup(input: MemberInput): Promise<Member> {
+		const allowedTypes: MemberType[] = [MemberType.USER, MemberType.AGENT];
+		const requestedType = input.memberType ?? MemberType.USER;
+
+		if (!allowedTypes.includes(requestedType)) {
+			throw new BadRequestException(Message.ONLY_USER_OR_AGENT_SIGNUP);
+		}
+
+		input.memberType = requestedType;
 		input.memberPassword = await this.authService.hashPassword(input.memberPassword);
+
 		try {
 			const result = await this.memberModel.create(input);
 			result.accessToken = await this.authService.createToken(result);
@@ -62,6 +72,19 @@ export class MemberService {
 	}
 
 	public async updateMember(memberId: Types.ObjectId, input: MemberUpdate): Promise<Member> {
+		if (input.memberType !== undefined || input.memberStatus !== undefined) {
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		}
+		if (input.memberPassword !== undefined) {
+			throw new BadRequestException(Message.PASSWORD_UPDATE_NOT_ALLOWED);
+		}
+
+		// Privilege / credential fields must never be writable via self-update.
+		delete input._id;
+		delete input.memberType;
+		delete input.memberStatus;
+		delete input.memberPassword;
+
 		const result: Member | null = await this.memberModel
 			.findOneAndUpdate(
 				{
@@ -78,7 +101,44 @@ export class MemberService {
 		return result;
 	}
 
-	public async getMember(memberId: Types.ObjectId | null, targetId: ObjectId): Promise<Member> {
+	public async changePassword(
+		memberId: Types.ObjectId,
+		currentPassword: string,
+		newPassword: string,
+	): Promise<Member> {
+		const member = await this.memberModel
+			.findOne({
+				_id: memberId,
+				memberStatus: MemberStatus.ACTIVE,
+			})
+			.select('+memberPassword')
+			.exec();
+
+		if (!member) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		const isMatch = await this.authService.comparePasswords(currentPassword, member.memberPassword);
+		if (!isMatch) throw new BadRequestException(Message.WRONG_PASSWORD);
+
+		const hashedPassword = await this.authService.hashPassword(newPassword);
+		const result: Member | null = await this.memberModel
+			.findOneAndUpdate(
+				{
+					_id: memberId,
+					memberStatus: MemberStatus.ACTIVE,
+				},
+				{ memberPassword: hashedPassword },
+				{ new: true },
+			)
+			.exec();
+
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		result.accessToken = await this.authService.createToken(result);
+		result.memberPassword = undefined as any;
+		return result;
+	}
+
+	public async getMember(memberId: Types.ObjectId | null, targetId: Types.ObjectId): Promise<Member> {
 		const search: T = {
 			// erkin object
 			_id: targetId,
@@ -93,7 +153,7 @@ export class MemberService {
 			const viewInput = {
 				// state propety // ikki xil propety bor / state, method
 				memberId: memberId,
-				viewRefId: targetId as unknown as Types.ObjectId,
+				viewRefId: targetId,
 				viewGroup: ViewGroup.MEMBER,
 			};
 			const newView = await this.viewService.recordView(viewInput);
@@ -103,7 +163,7 @@ export class MemberService {
 			}
 			const likeInput = {
 				memberId: memberId,
-				likeRefId: targetId as unknown as Types.ObjectId,
+				likeRefId: targetId,
 				likeGroup: LikeGroup.MEMBER,
 			};
 
@@ -126,9 +186,32 @@ export class MemberService {
 				{
 					$facet: {
 						list: [
-							{ $skip: (input.page - 1) * input.limit }, //agentsId
+							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							// meLiked
+							{
+								$lookup: {
+									from: 'tours',
+									let: { agentId: '$_id' },
+									pipeline: [
+										{
+											$match: {
+												$expr: { $eq: ['$memberId', '$$agentId'] },
+												tourStatus: TourStatus.ACTIVE,
+											},
+										},
+										{ $count: 'total' },
+									],
+									as: 'tourStats',
+								},
+							},
+							{
+								$addFields: {
+									memberProperties: {
+										$ifNull: [{ $arrayElemAt: ['$tourStats.total', 0] }, 0],
+									},
+								},
+							},
+							{ $project: { tourStats: 0 } },
 							lookupAuthMemberLiked(memberId),
 						],
 						metaCounter: [{ $count: 'total' }],
@@ -139,11 +222,9 @@ export class MemberService {
 
 		const result: Members = {
 			list: aggregateResult[0]?.list ?? [],
-			metaCounter: aggregateResult[0]?.metaCounter ?? [],
+			metaCounter: aggregateResult[0]?.metaCounter ?? [{ total: 0 }],
 			length: undefined,
 		};
-
-		if (!result.list.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result;
 	}
@@ -208,6 +289,10 @@ export class MemberService {
 	}
 
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
+		if (input.memberPassword) {
+			input.memberPassword = await this.authService.hashPassword(input.memberPassword);
+		}
+
 		const result = await this.memberModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		return result;

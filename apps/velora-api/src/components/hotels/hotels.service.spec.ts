@@ -84,7 +84,7 @@ describe('HotelsService', () => {
 
 		expect(viewService.recordView).toHaveBeenCalled();
 		expect(result.hotelViews).toBe(3);
-		expect(result.meLiked[0].myFavorite).toBe(true);
+		expect(result.meLiked).toEqual([{ myFavorite: true }]);
 	});
 
 	it('toggles like on active hotel', async () => {

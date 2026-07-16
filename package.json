@@ -26,7 +26,9 @@
     "seed:tours": "ts-node apps/velora-api/src/seed/tours.seed.ts",
     "seed:hotels": "ts-node apps/velora-api/src/seed/hotels.seed.ts",
     "seed:rentcar": "ts-node apps/velora-api/src/seed/rentcar.seed.ts",
-    "seed:bookings": "ts-node apps/velora-api/src/seed/bookings.seed.ts"
+    "seed:members": "ts-node apps/velora-api/src/seed/members.seed.ts",
+    "seed:bookings": "ts-node apps/velora-api/src/seed/bookings.seed.ts",
+    "seed:all": "yarn seed:members && yarn seed:tours && yarn seed:hotels && yarn seed:flights && yarn seed:rentcar"
   },
   "lint-staged": {
     "*.{ts,tsx,js,json,md}": [

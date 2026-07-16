@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Follower, Followers, Following, Followings } from '../../libs/dto/follow/follow';
 import { MemberService } from '../member/member.service';
 import { Direction, Message } from '../../libs/enums/common.enum';
@@ -22,7 +22,7 @@ export class FollowService {
 		private readonly memberService: MemberService,
 	) {}
 
-	public async subscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
+	public async subscribe(followerId: Types.ObjectId, followingId: Types.ObjectId): Promise<Follower> {
 		if (followerId.toString() === followingId.toString()) {
 			throw new InternalServerErrorException(Message.SELF_SUBSCRIPTION_DENIED);
 		}
@@ -57,7 +57,7 @@ export class FollowService {
 		return result;
 	}
 
-	private async registerSubscription(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
+	private async registerSubscription(followerId: Types.ObjectId, followingId: Types.ObjectId): Promise<Follower> {
 		try {
 			return await this.followModel.create({
 				followingId: followingId,
@@ -69,7 +69,7 @@ export class FollowService {
 		}
 	}
 
-	public async unsubscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
+	public async unsubscribe(followerId: Types.ObjectId, followingId: Types.ObjectId): Promise<Follower> {
 		const targetMember = await this.memberService.getMember(null, followingId);
 
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);

@@ -27,7 +27,7 @@ async function bootstrap() {
 		credentials: true,
 	});
 
-	app.use(graphqlUploadExpress({ maxFileSize: 15000000, maxFiles: 10 }));
+	app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 10 }));
 	app.use('/uploads', express.static('./uploads'));
 
 	app.useWebSocketAdapter(new WsAdapter(app));

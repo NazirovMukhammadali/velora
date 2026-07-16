@@ -1,7 +1,13 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import { UseGuards } from '@nestjs/common';
-import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
+import {
+	AgentsInquiry,
+	ChangePasswordInput,
+	LoginInput,
+	MemberInput,
+	MembersInquiry,
+} from '../../libs/dto/member/member.input';
 import { Member, Members } from '../../libs/dto/member/member';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -10,11 +16,10 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
-import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import { createWriteStream } from 'fs';
-import { Message } from '../../libs/enums/common.enum';
+import { assertSafeUploadTarget, saveSecureImageUpload } from '../../libs/upload/upload.security';
 
 @Resolver()
 export class MemberResolver {
@@ -51,6 +56,15 @@ export class MemberResolver {
 	): Promise<Member> {
 		delete input._id;
 		return await this.memberService.updateMember(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Member)
+	public async changePassword(
+		@Args('input') input: ChangePasswordInput,
+		@AuthMember('_id') memberId: Types.ObjectId,
+	): Promise<Member> {
+		return await this.memberService.changePassword(memberId, input.currentPassword, input.newPassword);
 	}
 
 	// Retriver
@@ -110,23 +124,12 @@ export class MemberResolver {
 		{ createReadStream, filename, mimetype }: FileUpload,
 		@Args('target') target: string,
 	): Promise<string> {
-		if (!filename) throw new Error(Message.UPLOAD_FAILED);
-		const validMime = validMimeTypes.includes(mimetype);
-		if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
-
-		const imageName = getSerialForImage(filename);
-		const url = `uploads/${target}/${imageName}`;
-		const stream = createReadStream();
-
-		const result = await new Promise((resolve, reject) => {
-			stream
-				.pipe(createWriteStream(url))
-				.on('finish', async () => resolve(true))
-				.on('error', () => reject(false));
+		return await saveSecureImageUpload({
+			filename,
+			mimetype,
+			createReadStream,
+			target,
 		});
-		if (!result) throw new Error(Message.UPLOAD_FAILED);
-
-		return url;
 	}
 
 	@UseGuards(AuthGuard)
@@ -136,31 +139,24 @@ export class MemberResolver {
 		files: Promise<FileUpload>[],
 		@Args('target') target: string,
 	): Promise<string[]> {
+		assertSafeUploadTarget(target);
+
 		const uploadedImages: string[] = [];
 		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<void> => {
 			try {
 				if (!img) return;
 				const { filename, mimetype, createReadStream } = await img;
-				if (!filename) return;
-
-				const validMime = validMimeTypes.includes(mimetype);
-				if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
-
-				const imageName = getSerialForImage(filename);
-				const url = `uploads/${target}/${imageName}`;
-				const stream = createReadStream();
-
-				const result = await new Promise((resolve, reject) => {
-					stream
-						.pipe(createWriteStream(url))
-						.on('finish', () => resolve(true))
-						.on('error', () => reject(false));
+				uploadedImages[index] = await saveSecureImageUpload({
+					filename,
+					mimetype,
+					createReadStream,
+					target,
 				});
-				if (!result) throw new Error(Message.UPLOAD_FAILED);
-
-				uploadedImages[index] = url;
 			} catch (err) {
-				// skip invalid file and continue uploading remaining files
+				// Skip invalid files in multi-upload; errors are real Error/BadRequestException objects.
+				if (!(err instanceof Error)) {
+					throw new Error('Upload failed');
+				}
 			}
 		});
 
