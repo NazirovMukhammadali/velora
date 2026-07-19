@@ -36,7 +36,6 @@ export class HotelsService {
 				hotelStatus: input.hotelStatus ?? HotelStatus.ACTIVE,
 			});
 		} catch (err) {
-			console.log('Error, createHotel:', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}

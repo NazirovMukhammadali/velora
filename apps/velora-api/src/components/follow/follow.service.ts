@@ -64,7 +64,6 @@ export class FollowService {
 				followerId: followerId,
 			});
 		} catch (error) {
-			console.log('Error, model of Follow Service', error.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}

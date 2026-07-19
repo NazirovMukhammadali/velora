@@ -14,7 +14,7 @@ Use this checklist before connecting `velora-web` to `velora-api`.
 - [ ] Primary search tabs: `Flights`, `Hotels`, `Rentcar` only
 - [ ] `Tours` stay in agent flow (not primary tab)
 - [ ] `Flights/Hotels/Rentcar` are discovery-only (`search`, `list`, `detail`) and must not call booking mutations
-- [ ] Booking status lifecycle: `PENDING` -> `CONFIRMED`
+- [ ] Booking status lifecycle: `PENDING` -> `CONFIRMED` (hotel also supports `CANCELLED`)
 - [ ] No real payment integration in this MVP
 - [ ] Review write access requires `CONFIRMED` tour booking
 
@@ -41,11 +41,10 @@ Use this checklist before connecting `velora-web` to `velora-api`.
 - `getRentcarDetail`
 
 ### Booking
-- **Tour-only** booking contract:
-  - Do not implement/use `createFlightBooking`, `createHotelBooking`, `createRentcarBooking`
-- `createTourBooking`
-- `getMyTourBookings`
-- `confirmTourBookingByAdmin` (admin panel side)
+- **Tour + Hotel** booking contract (Flight/Rentcar still discovery-only):
+  - Do not implement/use `createFlightBooking`, `createRentcarBooking` yet
+- `createTourBooking` / `getMyTourBookings` / `confirmTourBookingByAdmin`
+- `createHotelBooking` / `getMyHotelBookings` / `confirmHotelBookingByAdmin` / `cancelHotelBookingByAdmin`
 
 ### Agent/tours
 - `getPopularTours`

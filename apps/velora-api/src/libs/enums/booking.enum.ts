@@ -13,6 +13,7 @@ registerEnumType(BookingType, {
 export enum BookingStatus {
 	PENDING = 'PENDING',
 	CONFIRMED = 'CONFIRMED',
+	CANCELLED = 'CANCELLED',
 }
 registerEnumType(BookingStatus, {
 	name: 'BookingStatus',

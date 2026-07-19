@@ -42,6 +42,20 @@ const BookingSchema = new Schema(
 			required: true,
 			min: 0,
 		},
+
+		checkInDate: {
+			type: Date,
+		},
+
+		checkOutDate: {
+			type: Date,
+		},
+
+		quantity: {
+			type: Number,
+			min: 1,
+			default: 1,
+		},
 	},
 	{ timestamps: true, collection: 'bookings' },
 );
@@ -49,5 +63,6 @@ const BookingSchema = new Schema(
 BookingSchema.index({ memberId: 1, bookingType: 1, bookingStatus: 1, createdAt: -1 });
 BookingSchema.index({ agentId: 1, bookingType: 1, bookingStatus: 1, createdAt: -1 });
 BookingSchema.index({ bookingRefId: 1, bookingType: 1 });
+BookingSchema.index({ memberId: 1, bookingRefId: 1, bookingType: 1, bookingStatus: 1 });
 
 export default BookingSchema;

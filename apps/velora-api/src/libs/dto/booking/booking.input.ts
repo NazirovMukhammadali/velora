@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsDateString, IsIn, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { Types } from 'mongoose';
 import { Direction } from '../../enums/common.enum';
 import { BookingStatus } from '../../enums/booking.enum';
@@ -11,6 +11,28 @@ export class CreateTourBookingInput {
 	@IsNotEmpty()
 	@Field(() => String)
 	tourId: Types.ObjectId;
+}
+
+@InputType()
+export class CreateHotelBookingInput {
+	@IsNotEmpty()
+	@Field(() => String)
+	hotelId: Types.ObjectId;
+
+	@IsNotEmpty()
+	@IsDateString()
+	@Field(() => String)
+	checkInDate: string;
+
+	@IsNotEmpty()
+	@IsDateString()
+	@Field(() => String)
+	checkOutDate: string;
+
+	@IsOptional()
+	@Min(1)
+	@Field(() => Int, { nullable: true })
+	quantity?: number;
 }
 
 @InputType()
@@ -41,6 +63,13 @@ export class BookingInquiry {
 
 @InputType()
 export class ConfirmBookingByAdminInput {
+	@IsNotEmpty()
+	@Field(() => String)
+	_id: Types.ObjectId;
+}
+
+@InputType()
+export class CancelBookingByAdminInput {
 	@IsNotEmpty()
 	@Field(() => String)
 	_id: Types.ObjectId;

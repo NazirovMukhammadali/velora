@@ -36,7 +36,6 @@ export class FlightsService {
 				flightStatus: input.flightStatus ?? FlightStatus.ACTIVE,
 			});
 		} catch (err) {
-			console.log('Error, createFlight:', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}

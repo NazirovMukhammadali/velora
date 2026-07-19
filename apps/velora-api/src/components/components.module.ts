@@ -12,6 +12,7 @@ import { ToursModule } from './tours/tours.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { BoardArticleModule } from './board-article/board-article.module';
+import { NoticeModule } from './notice/notice.module';
 
 @Module({
 	imports: [
@@ -28,6 +29,7 @@ import { BoardArticleModule } from './board-article/board-article.module';
 		BookingsModule,
 		ChatbotModule,
 		BoardArticleModule,
+		NoticeModule,
 	],
 })
 export class ComponentsModule {}

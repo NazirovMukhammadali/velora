@@ -40,7 +40,6 @@ export class ToursService {
 				tourSoldCount: 0,
 			});
 		} catch (err) {
-			console.log('Error, createTour:', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}

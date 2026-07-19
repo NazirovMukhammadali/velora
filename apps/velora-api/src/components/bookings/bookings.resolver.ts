@@ -8,7 +8,9 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Booking, Bookings } from '../../libs/dto/booking/booking';
 import {
 	BookingInquiry,
+	CancelBookingByAdminInput,
 	ConfirmBookingByAdminInput,
+	CreateHotelBookingInput,
 	CreateTourBookingInput,
 } from '../../libs/dto/booking/booking.input';
 import { MemberType } from '../../libs/enums/member.enum';
@@ -44,5 +46,40 @@ export class BookingsResolver {
 	public async confirmTourBookingByAdmin(@Args('input') input: ConfirmBookingByAdminInput): Promise<Booking> {
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.bookingsService.confirmBookingByAdmin(input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Booking)
+	public async createHotelBooking(
+		@AuthMember('_id') memberId: Types.ObjectId,
+		@Args('input') input: CreateHotelBookingInput,
+	): Promise<Booking> {
+		input.hotelId = shapeIntoMongoObjectId(input.hotelId);
+		return await this.bookingsService.createHotelBooking(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Query(() => Bookings)
+	public async getMyHotelBookings(
+		@AuthMember('_id') memberId: Types.ObjectId,
+		@Args('input') input: BookingInquiry,
+	): Promise<Bookings> {
+		return await this.bookingsService.getMyHotelBookings(memberId, input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(AuthGuard, RolesGuard)
+	@Mutation(() => Booking)
+	public async confirmHotelBookingByAdmin(@Args('input') input: ConfirmBookingByAdminInput): Promise<Booking> {
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.bookingsService.confirmHotelBookingByAdmin(input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(AuthGuard, RolesGuard)
+	@Mutation(() => Booking)
+	public async cancelHotelBookingByAdmin(@Args('input') input: CancelBookingByAdminInput): Promise<Booking> {
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.bookingsService.cancelHotelBookingByAdmin(input);
 	}
 }

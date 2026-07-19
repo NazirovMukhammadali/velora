@@ -36,7 +36,6 @@ export class RentcarService {
 				rentcarStatus: input.rentcarStatus ?? RentcarStatus.ACTIVE,
 			});
 		} catch (err) {
-			console.log('Error, createRentcar:', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}

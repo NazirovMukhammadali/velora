@@ -29,6 +29,15 @@ export class Booking {
 	@Field(() => Int)
 	bookingPrice: number;
 
+	@Field(() => Date, { nullable: true })
+	checkInDate?: Date;
+
+	@Field(() => Date, { nullable: true })
+	checkOutDate?: Date;
+
+	@Field(() => Int, { nullable: true })
+	quantity?: number;
+
 	@Field(() => Date)
 	createdAt: Date;
 

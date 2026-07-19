@@ -40,7 +40,6 @@ export class BoardArticleService {
 			});
 			return result;
 		} catch (err) {
-			console.log('Error, createBoardArticle:', err?.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}

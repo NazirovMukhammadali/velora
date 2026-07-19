@@ -37,3 +37,13 @@ npm run test -- --runInBand
 npm run test:e2e
 npm run test:integration
 ```
+
+## Hotel booking (sub-stage 1/3)
+
+1. `USER` creates a stay via `createHotelBooking` (check-in/out + rooms) → `PENDING`.
+2. `USER` lists stays via `getMyHotelBookings`.
+3. `ADMIN` confirms via `confirmHotelBookingByAdmin` (Mongo transaction decrements `availableRooms`).
+4. `ADMIN` may cancel via `cancelHotelBookingByAdmin` (CONFIRMED restores rooms).
+
+Flight and RentCar booking remain out of scope until later sub-stages.
+

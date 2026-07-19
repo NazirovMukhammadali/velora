@@ -7,7 +7,11 @@ Use this file as a stable frontend/backend contract for initial integration.
 - Contract frozen for frontend integration.
 - Breaking changes are not allowed in listed operations until frontend MVP handoff is complete.
 
-## Discovery Domains (no booking mutations)
+## Discovery Domains (catalog)
+
+> Hotels support booking mutations listed under Bookings. Flight/Rentcar remain discovery-only until later stages.
+
+## Discovery Domains (legacy note)
 
 ### Flights
 - `getFlights(input: FlightsInquiry!)`
@@ -29,10 +33,14 @@ Use this file as a stable frontend/backend contract for initial integration.
 - `getAgentTours(agentId: String!, input: AgentToursInquiry!)`
 - `getTourDetail(tourId: ID!)`
 
-### Bookings (tour-only)
+### Bookings (tour + hotel)
 - `createTourBooking(input: CreateTourBookingInput!)`
 - `getMyTourBookings(input: BookingInquiry!)`
 - `confirmTourBookingByAdmin(input: ConfirmBookingByAdminInput!)`
+- `createHotelBooking(input: CreateHotelBookingInput!)`
+- `getMyHotelBookings(input: BookingInquiry!)`
+- `confirmHotelBookingByAdmin(input: ConfirmBookingByAdminInput!)`
+- `cancelHotelBookingByAdmin(input: CancelBookingByAdminInput!)`
 
 ### Reviews / Gating
 - `createComment(input: CommentInput!)` (requires confirmed tour booking with target agent)
