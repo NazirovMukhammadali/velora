@@ -22,8 +22,7 @@ const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0
 const isAllowedTarget = (target: string): target is AllowedUploadTarget =>
 	(ALLOWED_UPLOAD_TARGETS as readonly string[]).includes(target);
 
-export const normalizeClientMime = (mimetype: string): string =>
-	mimetype === 'image/jpg' ? 'image/jpeg' : mimetype;
+export const normalizeClientMime = (mimetype: string): string => (mimetype === 'image/jpg' ? 'image/jpeg' : mimetype);
 
 export const assertSafeUploadTarget = (target: string): AllowedUploadTarget => {
 	if (

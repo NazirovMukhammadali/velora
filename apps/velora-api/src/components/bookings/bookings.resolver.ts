@@ -7,6 +7,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Booking, Bookings } from '../../libs/dto/booking/booking';
 import {
+	AllBookingsInquiry,
 	BookingInquiry,
 	CancelBookingByAdminInput,
 	ConfirmBookingByAdminInput,
@@ -46,6 +47,21 @@ export class BookingsResolver {
 	public async confirmTourBookingByAdmin(@Args('input') input: ConfirmBookingByAdminInput): Promise<Booking> {
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.bookingsService.confirmBookingByAdmin(input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(AuthGuard, RolesGuard)
+	@Mutation(() => Booking)
+	public async cancelTourBookingByAdmin(@Args('input') input: CancelBookingByAdminInput): Promise<Booking> {
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.bookingsService.cancelTourBookingByAdmin(input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(AuthGuard, RolesGuard)
+	@Query(() => Bookings)
+	public async getAllBookingsByAdmin(@Args('input') input: AllBookingsInquiry): Promise<Bookings> {
+		return await this.bookingsService.getAllBookingsByAdmin(input);
 	}
 
 	@UseGuards(AuthGuard)

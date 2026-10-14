@@ -153,11 +153,12 @@ describe('MemberService authorization security', () => {
 			const currentHash = await bcrypt.hash(currentPassword, 4);
 
 			memberModel.findOne.mockReturnValue({
-				select: () => execMock({
-					_id: memberId,
-					memberPassword: currentHash,
-					memberStatus: MemberStatus.ACTIVE,
-				}),
+				select: () =>
+					execMock({
+						_id: memberId,
+						memberPassword: currentHash,
+						memberStatus: MemberStatus.ACTIVE,
+					}),
 			});
 
 			const updated = {
@@ -182,11 +183,12 @@ describe('MemberService authorization security', () => {
 			const currentHash = await bcrypt.hash('oldpass12', 4);
 
 			memberModel.findOne.mockReturnValue({
-				select: () => execMock({
-					_id: memberId,
-					memberPassword: currentHash,
-					memberStatus: MemberStatus.ACTIVE,
-				}),
+				select: () =>
+					execMock({
+						_id: memberId,
+						memberPassword: currentHash,
+						memberStatus: MemberStatus.ACTIVE,
+					}),
 			});
 
 			await expect(service.changePassword(memberId, 'wrongpass', 'newpass12')).rejects.toEqual(
@@ -200,9 +202,7 @@ describe('MemberService authorization security', () => {
 		it('hashes password before saving', async () => {
 			const memberId = new Types.ObjectId();
 			const plainPassword = 'adminSet1';
-			memberModel.findOneAndUpdate.mockReturnValue(
-				execMock({ _id: memberId, memberType: MemberType.USER }),
-			);
+			memberModel.findOneAndUpdate.mockReturnValue(execMock({ _id: memberId, memberType: MemberType.USER }));
 
 			await service.updateMemberByAdmin({
 				_id: memberId,

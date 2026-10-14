@@ -64,18 +64,13 @@ export class BoardArticleResolver {
 		@Args('articleId') articleId: string,
 		@AuthMember('_id') memberId: Types.ObjectId,
 	): Promise<BoardArticle> {
-		return await this.boardArticleService.likeTargetBoardArticle(
-			memberId,
-			shapeIntoMongoObjectId(articleId),
-		);
+		return await this.boardArticleService.likeTargetBoardArticle(memberId, shapeIntoMongoObjectId(articleId));
 	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Query(() => BoardArticles)
-	public async getAllBoardArticlesByAdmin(
-		@Args('input') input: AllBoardArticlesInquiry,
-	): Promise<BoardArticles> {
+	public async getAllBoardArticlesByAdmin(@Args('input') input: AllBoardArticlesInquiry): Promise<BoardArticles> {
 		return await this.boardArticleService.getAllBoardArticlesByAdmin(input);
 	}
 

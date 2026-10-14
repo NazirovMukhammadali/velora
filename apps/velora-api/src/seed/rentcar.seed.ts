@@ -50,65 +50,76 @@ const resolveMongoUri = (): string => {
 	return uri;
 };
 
-const buildSeedRentcars = (): SeedRentcar[] => [
+const photo = (id: string): string => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
+
+/** Earlier versions named every car "Velora …" with mismatched photos; those rows are fixed in place. */
+type SeedRentcarWithLegacy = SeedRentcar & { legacyTitle: string };
+
+const buildSeedRentcars = (): SeedRentcarWithLegacy[] => [
 	{
-		carTitle: 'Velora City Sedan',
+		legacyTitle: 'Velora City Sedan',
+		carTitle: 'Toyota Camry',
 		carLocation: 'Tashkent',
 		carCategory: RentcarCategory.SEDAN,
 		transmission: TransmissionType.AUTOMATIC,
-		seats: 4,
-		dailyPrice: 45,
+		seats: 5,
+		dailyPrice: 55,
 		availableCars: 12,
-		carImages: ['https://images.unsplash.com/photo-1542362567-b07e54358753?w=1200'],
-		carDesc: 'Comfortable city sedan for daily business trips.',
+		carImages: [photo('photo-1621007947382-bb3c3994e3fb')],
+		carDesc: 'Comfortable mid-size sedan with climate control — ideal for business trips and the drive to Chimgan.',
 		rentcarStatus: RentcarStatus.ACTIVE,
 	},
 	{
-		carTitle: 'Velora Desert SUV',
+		legacyTitle: 'Velora Desert SUV',
+		carTitle: 'Range Rover Sport',
 		carLocation: 'Dubai',
 		carCategory: RentcarCategory.SUV,
 		transmission: TransmissionType.AUTOMATIC,
-		seats: 7,
-		dailyPrice: 110,
+		seats: 5,
+		dailyPrice: 180,
 		availableCars: 8,
-		carImages: ['https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=1200'],
-		carDesc: 'Powerful SUV for long rides and family travel.',
+		carImages: [photo('photo-1563720223185-11003d516935')],
+		carDesc: 'Luxury SUV with air suspension, equally at home on Sheikh Zayed Road and the road to Hatta.',
 		rentcarStatus: RentcarStatus.ACTIVE,
 	},
 	{
-		carTitle: 'Velora Coupe Sport',
+		legacyTitle: 'Velora Coupe Sport',
+		carTitle: 'Mercedes-AMG GT',
 		carLocation: 'Seoul',
 		carCategory: RentcarCategory.COUPE,
-		transmission: TransmissionType.MANUAL,
+		transmission: TransmissionType.AUTOMATIC,
 		seats: 2,
-		dailyPrice: 95,
+		dailyPrice: 240,
 		availableCars: 4,
-		carImages: ['https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=1200'],
-		carDesc: 'Sport-style coupe for premium short-term rentals.',
+		carImages: [photo('photo-1617814076367-b759c7d7e738')],
+		carDesc: 'Front-mid-engine V8 sports car for a weekend drive along the east coast to Gangneung.',
 		rentcarStatus: RentcarStatus.ACTIVE,
 	},
 	{
-		carTitle: 'Velora Family Van',
+		legacyTitle: 'Velora Family Van',
+		carTitle: 'Volkswagen Westfalia Camper',
 		carLocation: 'Istanbul',
 		carCategory: RentcarCategory.VAN,
-		transmission: TransmissionType.AUTOMATIC,
-		seats: 8,
-		dailyPrice: 88,
-		availableCars: 6,
-		carImages: ['https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=1200'],
-		carDesc: 'Spacious van for group and airport transfer.',
+		transmission: TransmissionType.MANUAL,
+		seats: 4,
+		dailyPrice: 95,
+		availableCars: 3,
+		carImages: [photo('photo-1527786356703-4b100091cd2c')],
+		carDesc:
+			'Classic pop-top camper with beds and a kitchenette — made for the Aegean coast and Cappadocia road trips.',
 		rentcarStatus: RentcarStatus.ACTIVE,
 	},
 	{
-		carTitle: 'Velora Compact Hatch',
+		legacyTitle: 'Velora Compact Hatch',
+		carTitle: 'Hyundai i30',
 		carLocation: 'Tokyo',
 		carCategory: RentcarCategory.HATCHBACK,
 		transmission: TransmissionType.AUTOMATIC,
-		seats: 4,
+		seats: 5,
 		dailyPrice: 55,
 		availableCars: 10,
-		carImages: ['https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1200'],
-		carDesc: 'Economic compact choice for city routes.',
+		carImages: [photo('photo-1550355291-bbee04a92027')],
+		carDesc: 'Economical compact hatchback that is easy to park — great for city routes and day trips to Kamakura.',
 		rentcarStatus: RentcarStatus.ACTIVE,
 	},
 ];
@@ -118,11 +129,23 @@ const seedRentcars = async (): Promise<void> => {
 	await mongoose.connect(mongoUri);
 	const RentcarModel = mongoose.models.Rentcar || mongoose.model('Rentcar', RentcarSchema);
 
-	const demoRentcars = buildSeedRentcars();
-	await RentcarModel.deleteMany({ carTitle: { $regex: /^Velora / } });
-	await RentcarModel.insertMany(demoRentcars);
+	let created = 0;
+	let updated = 0;
+	for (const { legacyTitle, ...car } of buildSeedRentcars()) {
+		// Update in place (same _id) so bookings, likes and views on the car stay attached.
+		const result = await RentcarModel.updateOne(
+			{ carLocation: car.carLocation, carTitle: { $in: [car.carTitle, legacyTitle] } },
+			{ $set: car },
+		).exec();
+		if (result.matchedCount > 0) {
+			updated += 1;
+		} else {
+			await RentcarModel.create(car);
+			created += 1;
+		}
+	}
 
-	console.log(`Seed completed: inserted ${demoRentcars.length} rentcars`);
+	console.log(`Seed completed: ${updated} rentcars updated, ${created} rentcars created`);
 	await mongoose.disconnect();
 };
 

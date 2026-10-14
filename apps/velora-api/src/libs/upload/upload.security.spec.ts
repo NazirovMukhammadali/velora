@@ -61,12 +61,8 @@ describe('upload.security', () => {
 	});
 
 	it('rejects path traversal and unsafe filenames', () => {
-		expect(() => assertSafeClientFilename('../secret.png')).toThrow(
-			new BadRequestException(Message.UNSAFE_FILENAME),
-		);
-		expect(() => assertSafeClientFilename('folder/file.png')).toThrow(
-			new BadRequestException(Message.UNSAFE_FILENAME),
-		);
+		expect(() => assertSafeClientFilename('../secret.png')).toThrow(new BadRequestException(Message.UNSAFE_FILENAME));
+		expect(() => assertSafeClientFilename('folder/file.png')).toThrow(new BadRequestException(Message.UNSAFE_FILENAME));
 		expect(() => assertSafeUploadTarget('member/../article')).toThrow(
 			new BadRequestException(Message.INVALID_UPLOAD_TARGET),
 		);

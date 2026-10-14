@@ -34,7 +34,7 @@ describe('NoticeService', () => {
 			page: 1,
 			limit: 10,
 			search: {},
-		} as any);
+		});
 
 		expect(result.list).toEqual([]);
 		expect(result.metaCounter[0].total).toBe(0);
@@ -81,7 +81,7 @@ describe('NoticeService', () => {
 			]),
 		);
 
-		const result = await service.getMyInquiries(memberId, { page: 1, limit: 10 } as any);
+		const result = await service.getMyInquiries(memberId, { page: 1, limit: 10 });
 		expect(result.list).toHaveLength(1);
 		expect(result.metaCounter[0].total).toBe(1);
 	});
@@ -122,7 +122,7 @@ describe('NoticeService', () => {
 		const result = await service.updateNoticeByAdmin({
 			_id: updated._id,
 			noticeTitle: 'Updated',
-		} as any);
+		});
 
 		expect(result.noticeTitle).toBe('Updated');
 	});
@@ -142,7 +142,7 @@ describe('NoticeService', () => {
 			page: 1,
 			limit: 10,
 			search: {},
-		} as any);
+		});
 
 		expect(result.list).toEqual([]);
 		expect(result.metaCounter[0].total).toBe(0);

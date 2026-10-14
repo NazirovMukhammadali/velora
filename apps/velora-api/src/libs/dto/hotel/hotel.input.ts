@@ -118,6 +118,10 @@ class AllHotelsSearch {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	hotelLocation?: string;
+	@IsOptional()
+	@Length(1, 100)
+	@Field(() => String, { nullable: true })
+	text?: string;
 }
 
 @InputType()

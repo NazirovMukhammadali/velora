@@ -3,12 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { Notice, Notices } from '../../libs/dto/notice/notice';
-import {
-	AllNoticesInquiry,
-	InquiryInput,
-	NoticeInput,
-	NoticesInquiry,
-} from '../../libs/dto/notice/notice.input';
+import { AllNoticesInquiry, InquiryInput, NoticeInput, NoticesInquiry } from '../../libs/dto/notice/notice.input';
 import { NoticeUpdate } from '../../libs/dto/notice/notice.update';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { NoticeCategory, NoticeStatus } from '../../libs/enums/notice.enum';
@@ -116,10 +111,7 @@ export class NoticeService {
 				{ $sort: sort },
 				{
 					$facet: {
-						list: [
-							{ $skip: (input.page - 1) * input.limit },
-							{ $limit: input.limit },
-						],
+						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
 						metaCounter: [{ $count: 'total' }],
 					},
 				},

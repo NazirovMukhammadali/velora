@@ -76,7 +76,7 @@ describe('BoardArticleService', () => {
 			page: 1,
 			limit: 6,
 			search: {},
-		} as any);
+		});
 
 		expect(result.list).toEqual([]);
 		expect(result.metaCounter[0].total).toBe(0);
@@ -89,7 +89,7 @@ describe('BoardArticleService', () => {
 			page: 1,
 			limit: 10,
 			search: {},
-		} as any);
+		});
 
 		expect(result.list).toEqual([]);
 		expect(result.metaCounter[0].total).toBe(0);
@@ -111,7 +111,7 @@ describe('BoardArticleService', () => {
 		const result = await service.updateBoardArticle(memberId, {
 			_id: articleId,
 			articleTitle: 'Updated title',
-		} as any);
+		});
 
 		expect(result.articleTitle).toBe('Updated title');
 		expect(boardArticleModel.findOneAndUpdate).toHaveBeenCalled();
@@ -142,7 +142,7 @@ describe('BoardArticleService', () => {
 		await service.updateBoardArticle(memberId, {
 			_id: articleId,
 			articleStatus: BoardArticleStatus.DELETE,
-		} as any);
+		});
 
 		expect(memberService.memberStatsEditor).toHaveBeenCalledWith({
 			_id: memberId,
@@ -183,9 +183,7 @@ describe('BoardArticleService', () => {
 	it('likes target article and updates like count', async () => {
 		const memberId = new Types.ObjectId();
 		const articleId = new Types.ObjectId();
-		boardArticleModel.findOne.mockReturnValue(
-			execMock({ _id: articleId, articleStatus: BoardArticleStatus.ACTIVE }),
-		);
+		boardArticleModel.findOne.mockReturnValue(execMock({ _id: articleId, articleStatus: BoardArticleStatus.ACTIVE }));
 		likeService.toggleLike.mockResolvedValue(1);
 		boardArticleModel.findByIdAndUpdate.mockReturnValue(execMock({ _id: articleId, articleLikes: 4 }));
 

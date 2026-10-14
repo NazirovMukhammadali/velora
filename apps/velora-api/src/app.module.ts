@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { Logger } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -10,6 +13,8 @@ import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
 import { SocketModule } from './socket/socket.module';
+import { AppThrottlerGuard } from './libs/throttler/app-throttler.guard';
+import { THROTTLER_OPTIONS } from './libs/throttler/throttler.config';
 
 const logger = new Logger('AppModule');
 const isProduction = process.env.NODE_ENV === 'production';
@@ -19,6 +24,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 	imports: [
 		// imports, controllers, providers = propetry
 		ConfigModule.forRoot(), // envirable verible intigratse
+		ScheduleModule.forRoot(), // daily jobs (e.g. rolling departed flights forward)
+		ThrottlerModule.forRoot(THROTTLER_OPTIONS), // rate limiting (global + AI assistant)
 		GraphQLModule.forRoot({
 			// GraphQL serverini sozlash.
 			driver: ApolloDriver, // ApolloDriver engine
@@ -42,6 +49,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 		SocketModule, // koprik // HTTP || TCP
 	],
 	controllers: [AppController], // rest api
-	providers: [AppService, AppResolver], // graphql api
+	providers: [AppService, AppResolver, { provide: APP_GUARD, useClass: AppThrottlerGuard }], // graphql api
 })
 export class AppModule {}

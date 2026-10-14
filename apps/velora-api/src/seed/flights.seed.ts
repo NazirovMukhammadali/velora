@@ -50,161 +50,165 @@ const resolveMongoUri = (): string => {
 	return uri;
 };
 
-const addHours = (from: Date, hours: number): Date => new Date(from.getTime() + hours * 60 * 60 * 1000);
+const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 
-const buildSeedFlights = (): SeedFlight[] => {
-	const now = new Date();
-	const base1 = addHours(now, 24);
-	const base2 = addHours(now, 32);
-	const base3 = addHours(now, 40);
-	const base4 = addHours(now, 48);
+type FlightRoute = Omit<SeedFlight, 'departureTime' | 'arrivalTime' | 'flightStatus'> & {
+	/** Placeholder number used by earlier versions of this seed (VLR1001…); renamed in place. */
+	legacyNumber: string;
+	durationHours: number;
+};
 
-	return [
-		{
-			airline: 'Uzbekistan Airways',
-			flightNumber: 'VLR1001',
-			departureAirport: 'TAS',
-			arrivalAirport: 'IST',
-			departureTime: base1,
-			arrivalTime: addHours(base1, 5),
-			cabinClass: FlightCabinClass.ECONOMY,
-			availableSeats: 32,
-			basePrice: 340,
+const ROUTES: FlightRoute[] = [
+	{
+		legacyNumber: 'VLR1001',
+		airline: 'Uzbekistan Airways',
+		flightNumber: 'HY273',
+		departureAirport: 'TAS',
+		arrivalAirport: 'IST',
+		durationHours: 5,
+		cabinClass: FlightCabinClass.ECONOMY,
+		availableSeats: 32,
+		basePrice: 340,
+	},
+	{
+		legacyNumber: 'VLR1002',
+		airline: 'Uzbekistan Airways',
+		flightNumber: 'HY355',
+		departureAirport: 'TAS',
+		arrivalAirport: 'DXB',
+		durationHours: 3.5,
+		cabinClass: FlightCabinClass.BUSINESS,
+		availableSeats: 18,
+		basePrice: 820,
+	},
+	{
+		legacyNumber: 'VLR1003',
+		airline: 'Turkish Airlines',
+		flightNumber: 'TK1971',
+		departureAirport: 'IST',
+		arrivalAirport: 'LHR',
+		durationHours: 4,
+		cabinClass: FlightCabinClass.PREMIUM_ECONOMY,
+		availableSeats: 24,
+		basePrice: 410,
+	},
+	{
+		legacyNumber: 'VLR1004',
+		airline: 'Emirates',
+		flightNumber: 'EK352',
+		departureAirport: 'DXB',
+		arrivalAirport: 'SIN',
+		durationHours: 7.5,
+		cabinClass: FlightCabinClass.ECONOMY,
+		availableSeats: 40,
+		basePrice: 460,
+	},
+	{
+		legacyNumber: 'VLR1005',
+		airline: 'Qatar Airways',
+		flightNumber: 'QR39',
+		departureAirport: 'DOH',
+		arrivalAirport: 'CDG',
+		durationHours: 6.5,
+		cabinClass: FlightCabinClass.BUSINESS,
+		availableSeats: 20,
+		basePrice: 1890,
+	},
+	{
+		legacyNumber: 'VLR1006',
+		airline: 'Lufthansa',
+		flightNumber: 'LH404',
+		departureAirport: 'FRA',
+		arrivalAirport: 'JFK',
+		durationHours: 8.5,
+		cabinClass: FlightCabinClass.FIRST,
+		availableSeats: 8,
+		basePrice: 4900,
+	},
+	{
+		legacyNumber: 'VLR1007',
+		airline: 'British Airways',
+		flightNumber: 'BA175',
+		departureAirport: 'LHR',
+		arrivalAirport: 'JFK',
+		durationHours: 8,
+		cabinClass: FlightCabinClass.ECONOMY,
+		availableSeats: 44,
+		basePrice: 590,
+	},
+	{
+		legacyNumber: 'VLR1008',
+		airline: 'Air France',
+		flightNumber: 'AF1204',
+		departureAirport: 'CDG',
+		arrivalAirport: 'FCO',
+		durationHours: 2,
+		cabinClass: FlightCabinClass.ECONOMY,
+		availableSeats: 38,
+		basePrice: 210,
+	},
+	{
+		legacyNumber: 'VLR1009',
+		airline: 'Korean Air',
+		flightNumber: 'KE703',
+		departureAirport: 'ICN',
+		arrivalAirport: 'NRT',
+		durationHours: 2.5,
+		cabinClass: FlightCabinClass.PREMIUM_ECONOMY,
+		availableSeats: 28,
+		basePrice: 260,
+	},
+	{
+		legacyNumber: 'VLR1010',
+		airline: 'Singapore Airlines',
+		flightNumber: 'SQ231',
+		departureAirport: 'SIN',
+		arrivalAirport: 'SYD',
+		durationHours: 8,
+		cabinClass: FlightCabinClass.BUSINESS,
+		availableSeats: 16,
+		basePrice: 2150,
+	},
+	{
+		legacyNumber: 'VLR1011',
+		airline: 'Japan Airlines',
+		flightNumber: 'JL2',
+		departureAirport: 'NRT',
+		arrivalAirport: 'SFO',
+		durationHours: 9.5,
+		cabinClass: FlightCabinClass.ECONOMY,
+		availableSeats: 34,
+		basePrice: 640,
+	},
+	{
+		legacyNumber: 'VLR1012',
+		airline: 'Etihad Airways',
+		flightNumber: 'EY2521',
+		departureAirport: 'AUH',
+		arrivalAirport: 'TAS',
+		durationHours: 3.5,
+		cabinClass: FlightCabinClass.PREMIUM_ECONOMY,
+		availableSeats: 26,
+		basePrice: 430,
+	},
+];
+
+/** Departures are always spread over the coming weeks relative to the day the seed runs. */
+const buildSeedFlights = (): Array<SeedFlight & { legacyNumber: string }> => {
+	const today = new Date();
+	today.setUTCHours(0, 0, 0, 0);
+
+	return ROUTES.map(({ legacyNumber, durationHours, ...route }, index) => {
+		const departureTime = new Date(today.getTime() + (5 + index * 4) * DAY_MS + (7 + ((index * 3) % 16)) * HOUR_MS);
+		return {
+			...route,
+			legacyNumber,
+			departureTime,
+			arrivalTime: new Date(departureTime.getTime() + durationHours * HOUR_MS),
 			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Uzbekistan Airways',
-			flightNumber: 'VLR1002',
-			departureAirport: 'TAS',
-			arrivalAirport: 'DXB',
-			departureTime: base2,
-			arrivalTime: addHours(base2, 3),
-			cabinClass: FlightCabinClass.BUSINESS,
-			availableSeats: 18,
-			basePrice: 520,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Turkish Airlines',
-			flightNumber: 'VLR1003',
-			departureAirport: 'IST',
-			arrivalAirport: 'LHR',
-			departureTime: base1,
-			arrivalTime: addHours(base1, 4),
-			cabinClass: FlightCabinClass.PREMIUM_ECONOMY,
-			availableSeats: 24,
-			basePrice: 410,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Emirates',
-			flightNumber: 'VLR1004',
-			departureAirport: 'DXB',
-			arrivalAirport: 'SIN',
-			departureTime: base3,
-			arrivalTime: addHours(base3, 7),
-			cabinClass: FlightCabinClass.ECONOMY,
-			availableSeats: 40,
-			basePrice: 460,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Qatar Airways',
-			flightNumber: 'VLR1005',
-			departureAirport: 'DOH',
-			arrivalAirport: 'CDG',
-			departureTime: base2,
-			arrivalTime: addHours(base2, 6),
-			cabinClass: FlightCabinClass.BUSINESS,
-			availableSeats: 20,
-			basePrice: 690,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Lufthansa',
-			flightNumber: 'VLR1006',
-			departureAirport: 'FRA',
-			arrivalAirport: 'JFK',
-			departureTime: base4,
-			arrivalTime: addHours(base4, 8),
-			cabinClass: FlightCabinClass.FIRST,
-			availableSeats: 8,
-			basePrice: 1220,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'British Airways',
-			flightNumber: 'VLR1007',
-			departureAirport: 'LHR',
-			arrivalAirport: 'JFK',
-			departureTime: base3,
-			arrivalTime: addHours(base3, 8),
-			cabinClass: FlightCabinClass.ECONOMY,
-			availableSeats: 45,
-			basePrice: 590,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Air France',
-			flightNumber: 'VLR1008',
-			departureAirport: 'CDG',
-			arrivalAirport: 'FCO',
-			departureTime: base1,
-			arrivalTime: addHours(base1, 2),
-			cabinClass: FlightCabinClass.ECONOMY,
-			availableSeats: 36,
-			basePrice: 210,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Korean Air',
-			flightNumber: 'VLR1009',
-			departureAirport: 'ICN',
-			arrivalAirport: 'NRT',
-			departureTime: base2,
-			arrivalTime: addHours(base2, 2),
-			cabinClass: FlightCabinClass.PREMIUM_ECONOMY,
-			availableSeats: 28,
-			basePrice: 260,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Singapore Airlines',
-			flightNumber: 'VLR1010',
-			departureAirport: 'SIN',
-			arrivalAirport: 'SYD',
-			departureTime: base4,
-			arrivalTime: addHours(base4, 8),
-			cabinClass: FlightCabinClass.BUSINESS,
-			availableSeats: 16,
-			basePrice: 910,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Japan Airlines',
-			flightNumber: 'VLR1011',
-			departureAirport: 'NRT',
-			arrivalAirport: 'SFO',
-			departureTime: base3,
-			arrivalTime: addHours(base3, 10),
-			cabinClass: FlightCabinClass.ECONOMY,
-			availableSeats: 34,
-			basePrice: 640,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-		{
-			airline: 'Etihad Airways',
-			flightNumber: 'VLR1012',
-			departureAirport: 'AUH',
-			arrivalAirport: 'TAS',
-			departureTime: base4,
-			arrivalTime: addHours(base4, 4),
-			cabinClass: FlightCabinClass.PREMIUM_ECONOMY,
-			availableSeats: 26,
-			basePrice: 430,
-			flightStatus: FlightStatus.ACTIVE,
-		},
-	];
+		};
+	});
 };
 
 const seedFlights = async (): Promise<void> => {
@@ -213,11 +217,23 @@ const seedFlights = async (): Promise<void> => {
 	await mongoose.connect(mongoUri);
 	const FlightModel = mongoose.models.Flight || mongoose.model('Flight', FlightSchema);
 
-	const demoFlights = buildSeedFlights();
-	await FlightModel.deleteMany({ flightNumber: { $regex: /^VLR\d+/ } });
-	await FlightModel.insertMany(demoFlights);
+	let created = 0;
+	let updated = 0;
+	for (const { legacyNumber, ...flight } of buildSeedFlights()) {
+		// Update in place (same _id) so bookings, likes and views on the flight stay attached.
+		const result = await FlightModel.updateOne(
+			{ flightNumber: { $in: [flight.flightNumber, legacyNumber] }, cabinClass: flight.cabinClass },
+			{ $set: flight },
+		).exec();
+		if (result.matchedCount > 0) {
+			updated += 1;
+		} else {
+			await FlightModel.create(flight);
+			created += 1;
+		}
+	}
 
-	console.log(`Seed completed: inserted ${demoFlights.length} flights`);
+	console.log(`Seed completed: ${updated} flights updated, ${created} flights created`);
 	await mongoose.disconnect();
 };
 

@@ -128,6 +128,10 @@ class AllRentcarsSearch {
 	@IsOptional()
 	@Field(() => RentcarCategory, { nullable: true })
 	carCategory?: RentcarCategory;
+	@IsOptional()
+	@Length(1, 100)
+	@Field(() => String, { nullable: true })
+	text?: string;
 }
 
 @InputType()

@@ -176,7 +176,7 @@ describe('BookingsService', () => {
 				checkInDate: tomorrowIso(),
 				checkOutDate: dayAfterTomorrowIso(),
 				quantity: 2,
-			} as any);
+			});
 
 			expect(result.bookingType).toBe(BookingType.HOTEL);
 			expect(bookingModel.create).toHaveBeenCalledWith(
@@ -283,7 +283,7 @@ describe('BookingsService', () => {
 			hotelModel.findOneAndUpdate.mockReturnValue(execMock({ _id: hotelId, availableRooms: 3 }));
 			bookingModel.findOneAndUpdate.mockReturnValue(execMock(confirmed));
 
-			const result = await service.confirmHotelBookingByAdmin({ _id: bookingId } as any);
+			const result = await service.confirmHotelBookingByAdmin({ _id: bookingId });
 			expect(result.bookingStatus).toBe(BookingStatus.CONFIRMED);
 			expect(hotelModel.findOneAndUpdate).toHaveBeenCalled();
 			expect(session.endSession).toHaveBeenCalled();
@@ -303,7 +303,7 @@ describe('BookingsService', () => {
 				execMock({ _id: bookingId, bookingStatus: BookingStatus.CANCELLED }),
 			);
 
-			const result = await service.cancelHotelBookingByAdmin({ _id: bookingId } as any);
+			const result = await service.cancelHotelBookingByAdmin({ _id: bookingId });
 			expect(result.bookingStatus).toBe(BookingStatus.CANCELLED);
 			expect(connection.startSession).not.toHaveBeenCalled();
 		});
@@ -331,7 +331,7 @@ describe('BookingsService', () => {
 			);
 			hotelModel.findOneAndUpdate.mockReturnValue(execMock({ _id: hotelId, availableRooms: 5 }));
 
-			const result = await service.cancelHotelBookingByAdmin({ _id: bookingId } as any);
+			const result = await service.cancelHotelBookingByAdmin({ _id: bookingId });
 			expect(result.bookingStatus).toBe(BookingStatus.CANCELLED);
 			expect(hotelModel.findOneAndUpdate).toHaveBeenCalledWith(
 				expect.objectContaining({ _id: hotelId }),

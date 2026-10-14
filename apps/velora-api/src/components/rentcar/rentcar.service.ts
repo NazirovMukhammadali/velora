@@ -13,7 +13,7 @@ import { ViewGroup } from '../../libs/enums/view.enum';
 import { T } from '../../libs/types/common';
 import { LikeService } from '../like/like.service';
 import { ViewService } from '../view/view.service';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { escapeRegex, shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class RentcarService {
@@ -168,6 +168,10 @@ export class RentcarService {
 		if (search.rentcarStatus) match.rentcarStatus = search.rentcarStatus;
 		if (search.carLocation) match.carLocation = search.carLocation;
 		if (search.carCategory) match.carCategory = search.carCategory;
+		if (search?.text) {
+			const regex = new RegExp(escapeRegex(search.text), 'i');
+			match.$or = [{ carTitle: regex }, { carLocation: regex }];
+		}
 
 		const result = await this.rentcarModel
 			.aggregate([

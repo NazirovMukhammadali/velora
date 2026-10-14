@@ -153,6 +153,10 @@ class AllToursSearch {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	memberId?: Types.ObjectId;
+	@IsOptional()
+	@Length(1, 100)
+	@Field(() => String, { nullable: true })
+	text?: string;
 }
 
 @InputType()

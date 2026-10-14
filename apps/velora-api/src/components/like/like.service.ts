@@ -30,7 +30,7 @@ export class LikeService {
 			try {
 				await this.likeModel.create(input);
 			} catch (err) {
-					throw new BadRequestException(Message.CREATE_FAILED);
+				throw new BadRequestException(Message.CREATE_FAILED);
 			}
 		}
 		return modifier;

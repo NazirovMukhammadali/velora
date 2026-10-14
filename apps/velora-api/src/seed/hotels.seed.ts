@@ -49,60 +49,79 @@ const resolveMongoUri = (): string => {
 	return uri;
 };
 
-const buildSeedHotels = (): SeedHotel[] => [
+const photo = (id: string): string => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
+
+/** Earlier versions named every hotel "Velora …"; those rows are renamed in place. */
+type SeedHotelWithLegacy = SeedHotel & { legacyName: string };
+
+const buildSeedHotels = (): SeedHotelWithLegacy[] => [
 	{
-		hotelName: 'Velora Grand Tashkent',
+		legacyName: 'Velora Grand Tashkent',
+		hotelName: 'Amir Temur Grand Hotel',
 		hotelLocation: 'Tashkent',
 		hotelAddress: 'Amir Temur Avenue 108, Tashkent',
 		hotelPrice: 120,
 		hotelStars: 4,
 		availableRooms: 42,
-		hotelImages: ['https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200'],
-		hotelDesc: 'Business-friendly stay near city center and metro.',
+		hotelImages: [
+			photo('photo-1590381105924-c72589b9ef3f'),
+			photo('photo-1578898886225-c7c894047899'),
+			photo('photo-1715966743489-0ac1138420a5'),
+		],
+		hotelDesc:
+			'Classic business hotel on Amir Temur Square, a short walk from the metro, Broadway Street and the Museum of Timurids.',
 		hotelStatus: HotelStatus.ACTIVE,
 	},
 	{
-		hotelName: 'Velora Marina Dubai',
+		legacyName: 'Velora Marina Dubai',
+		hotelName: 'Marina Pearl Hotel',
 		hotelLocation: 'Dubai',
 		hotelAddress: 'Dubai Marina Walk 22, Dubai',
 		hotelPrice: 260,
 		hotelStars: 5,
 		availableRooms: 28,
-		hotelImages: ['https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200'],
-		hotelDesc: 'Luxury sea-view rooms with premium service.',
+		hotelImages: [photo('photo-1571003123894-1f0594d2b5d9'), photo('photo-1631049035182-249067d7618e')],
+		hotelDesc:
+			'Sea-view rooms on Dubai Marina Walk with a cabana infinity pool, direct beach access at JBR and evening yacht departures nearby.',
 		hotelStatus: HotelStatus.ACTIVE,
 	},
 	{
-		hotelName: 'Velora Midtown Seoul',
+		legacyName: 'Velora Midtown Seoul',
+		hotelName: 'Euljiro Midtown Hotel',
 		hotelLocation: 'Seoul',
 		hotelAddress: 'Jung-gu Euljiro 45, Seoul',
 		hotelPrice: 170,
 		hotelStars: 4,
 		availableRooms: 36,
-		hotelImages: ['https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200'],
-		hotelDesc: 'Modern design hotel close to shopping districts.',
+		hotelImages: [photo('photo-1629140727571-9b5c6f6267b4'), photo('photo-1595526114035-0d45ed16cfbf')],
+		hotelDesc:
+			"Modern design hotel between Myeongdong and Dongdaemun, close to Euljiro's retro bars and two subway lines.",
 		hotelStatus: HotelStatus.ACTIVE,
 	},
 	{
-		hotelName: 'Velora Riverside Istanbul',
+		legacyName: 'Velora Riverside Istanbul',
+		hotelName: 'Karaköy Riverside Hotel',
 		hotelLocation: 'Istanbul',
 		hotelAddress: 'Karakoy Sahil 7, Istanbul',
 		hotelPrice: 145,
 		hotelStars: 4,
 		availableRooms: 31,
-		hotelImages: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200'],
-		hotelDesc: 'Comfortable suites with Bosphorus access nearby.',
+		hotelImages: [photo('photo-1559599238-308793637427'), photo('photo-1584132915807-fd1f5fbc078f')],
+		hotelDesc:
+			'Waterfront rooms in Karaköy with Bosphorus views, steps from the Galata Bridge ferries and the Istanbul Modern museum.',
 		hotelStatus: HotelStatus.ACTIVE,
 	},
 	{
-		hotelName: 'Velora Boutique Paris',
+		legacyName: 'Velora Boutique Paris',
+		hotelName: 'Maison Rivoli Boutique Hotel',
 		hotelLocation: 'Paris',
 		hotelAddress: 'Rue de Rivoli 89, Paris',
 		hotelPrice: 310,
 		hotelStars: 5,
 		availableRooms: 14,
-		hotelImages: ['https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=1200'],
-		hotelDesc: 'Boutique luxury in the heart of Paris attractions.',
+		hotelImages: [photo('photo-1505693416388-ac5ce068fe85'), photo('photo-1540518614846-7eded433c457')],
+		hotelDesc:
+			'Boutique hotel on Rue de Rivoli facing the Louvre, with Haussmann-era suites and breakfast on a private courtyard.',
 		hotelStatus: HotelStatus.ACTIVE,
 	},
 ];
@@ -112,11 +131,23 @@ const seedHotels = async (): Promise<void> => {
 	await mongoose.connect(mongoUri);
 	const HotelModel = mongoose.models.Hotel || mongoose.model('Hotel', HotelSchema);
 
-	const demoHotels = buildSeedHotels();
-	await HotelModel.deleteMany({ hotelName: { $regex: /^Velora / } });
-	await HotelModel.insertMany(demoHotels);
+	let created = 0;
+	let updated = 0;
+	for (const { legacyName, ...hotel } of buildSeedHotels()) {
+		// Update in place (same _id) so bookings, likes and views on the hotel stay attached.
+		const result = await HotelModel.updateOne(
+			{ hotelName: { $in: [hotel.hotelName, legacyName] } },
+			{ $set: hotel },
+		).exec();
+		if (result.matchedCount > 0) {
+			updated += 1;
+		} else {
+			await HotelModel.create(hotel);
+			created += 1;
+		}
+	}
 
-	console.log(`Seed completed: inserted ${demoHotels.length} hotels`);
+	console.log(`Seed completed: ${updated} hotels updated, ${created} hotels created`);
 	await mongoose.disconnect();
 };
 

@@ -21,7 +21,7 @@ import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeService } from '../like/like.service';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { escapeRegex, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class ToursService {
@@ -243,6 +243,10 @@ export class ToursService {
 		if (search.tourStatus) match.tourStatus = search.tourStatus;
 		if (search.tourLocation) match.tourLocation = search.tourLocation;
 		if (search.memberId) match.memberId = shapeIntoMongoObjectId(search.memberId);
+		if (search?.text) {
+			const regex = new RegExp(escapeRegex(search.text), 'i');
+			match.$or = [{ tourTitle: regex }, { tourLocation: regex }];
+		}
 
 		const result = await this.tourModel
 			.aggregate([
@@ -250,7 +254,12 @@ export class ToursService {
 				{ $sort: sort },
 				{
 					$facet: {
-						list: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+						list: [
+							{ $skip: (page - 1) * limit },
+							{ $limit: limit },
+							lookupMember,
+							{ $unwind: { path: '$memberData', preserveNullAndEmptyArrays: true } },
+						],
 						metaCounter: [{ $count: 'total' }],
 					},
 				},

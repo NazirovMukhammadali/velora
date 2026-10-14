@@ -3,12 +3,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Types } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Notice, Notices } from '../../libs/dto/notice/notice';
-import {
-	AllNoticesInquiry,
-	InquiryInput,
-	NoticeInput,
-	NoticesInquiry,
-} from '../../libs/dto/notice/notice.input';
+import { AllNoticesInquiry, InquiryInput, NoticeInput, NoticesInquiry } from '../../libs/dto/notice/notice.input';
 import { NoticeUpdate } from '../../libs/dto/notice/notice.update';
 import { MemberType } from '../../libs/enums/member.enum';
 import { AuthMember } from '../auth/decorators/authMember.decorator';

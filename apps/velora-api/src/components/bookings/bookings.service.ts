@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, PipelineStage, Types } from 'mongoose';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { escapeRegex, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { Booking, Bookings } from '../../libs/dto/booking/booking';
 import {
+	AllBookingsInquiry,
 	BookingInquiry,
 	CancelBookingByAdminInput,
 	ConfirmBookingByAdminInput,
@@ -101,6 +102,65 @@ export class BookingsService {
 		}
 
 		return result;
+	}
+
+	public async cancelTourBookingByAdmin(input: CancelBookingByAdminInput): Promise<Booking> {
+		const bookingId = shapeIntoMongoObjectId(input._id);
+		const existing = await this.bookingModel
+			.findOne({
+				_id: bookingId,
+				bookingType: BookingType.TOUR,
+				bookingStatus: { $in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] },
+			})
+			.exec();
+		if (!existing) throw new BadRequestException(Message.UPDATE_FAILED);
+
+		const cancelled = await this.bookingModel
+			.findOneAndUpdate(
+				{ _id: bookingId, bookingStatus: existing.bookingStatus },
+				{ bookingStatus: BookingStatus.CANCELLED },
+				{ new: true },
+			)
+			.exec();
+		if (!cancelled) throw new BadRequestException(Message.UPDATE_FAILED);
+
+		// A confirmed booking was counted as sold; give the count back.
+		if (existing.bookingStatus === BookingStatus.CONFIRMED) {
+			await this.tourModel
+				.updateOne({ _id: existing.bookingRefId, tourSoldCount: { $gt: 0 } }, { $inc: { tourSoldCount: -1 } })
+				.exec();
+		}
+
+		return cancelled;
+	}
+
+	public async getAllBookingsByAdmin(input: AllBookingsInquiry): Promise<Bookings> {
+		const { page, limit, search } = input;
+		const match: T = {};
+		if (search?.bookingType) match.bookingType = search.bookingType;
+		if (search?.bookingStatus) match.bookingStatus = search.bookingStatus;
+		if (search?.text) match.bookingTitle = { $regex: new RegExp(escapeRegex(search.text), 'i') };
+
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+		const result = await this.bookingModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (page - 1) * limit },
+							{ $limit: limit },
+							lookupMember,
+							{ $unwind: { path: '$memberData', preserveNullAndEmptyArrays: true } },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		return result?.[0] ?? { list: [], metaCounter: [{ total: 0 }] };
 	}
 
 	public async createHotelBooking(memberId: Types.ObjectId, input: CreateHotelBookingInput): Promise<Booking> {
@@ -256,9 +316,7 @@ export class BookingsService {
 			.exec();
 
 		if (!confirmed) {
-			await this.hotelModel
-				.findByIdAndUpdate(pending.bookingRefId, { $inc: { availableRooms: quantity } })
-				.exec();
+			await this.hotelModel.findByIdAndUpdate(pending.bookingRefId, { $inc: { availableRooms: quantity } }).exec();
 			throw new BadRequestException(Message.UPDATE_FAILED);
 		}
 
@@ -353,15 +411,12 @@ export class BookingsService {
 			.exec();
 
 		if (!restoredHotel) {
-			await this.bookingModel
-				.findByIdAndUpdate(existing._id, { bookingStatus: BookingStatus.CONFIRMED })
-				.exec();
+			await this.bookingModel.findByIdAndUpdate(existing._id, { bookingStatus: BookingStatus.CONFIRMED }).exec();
 			throw new BadRequestException(Message.UPDATE_FAILED);
 		}
 
 		return updatedBooking;
 	}
-
 
 	private isTransactionUnsupported(err: unknown): boolean {
 		const message = String((err as any)?.message ?? err ?? '');
@@ -401,11 +456,11 @@ export class BookingsService {
 			.select('_id')
 			.lean()
 			.exec();
-		if (preferred?._id) return preferred._id as Types.ObjectId;
+		if (preferred?._id) return preferred._id;
 
 		const anyAdmin = await this.memberModel.findOne({ memberType: MemberType.ADMIN }).select('_id').lean().exec();
 		if (!anyAdmin?._id) throw new BadRequestException(Message.BAD_REQUEST);
-		return anyAdmin._id as Types.ObjectId;
+		return anyAdmin._id;
 	}
 
 	private parseDateOnly(value: string): Date {

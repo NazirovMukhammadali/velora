@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { escapeRegex, lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
 import {
 	AllBoardArticlesInquiry,
@@ -44,10 +44,7 @@ export class BoardArticleService {
 		}
 	}
 
-	public async getBoardArticles(
-		memberId: Types.ObjectId | null,
-		input: BoardArticlesInquiry,
-	): Promise<BoardArticles> {
+	public async getBoardArticles(memberId: Types.ObjectId | null, input: BoardArticlesInquiry): Promise<BoardArticles> {
 		const match: T = { articleStatus: BoardArticleStatus.ACTIVE };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 		const search = input?.search ?? {};
@@ -121,10 +118,7 @@ export class BoardArticleService {
 			});
 		}
 
-		targetArticle.memberData = await this.memberService.getMember(
-			null,
-			shapeIntoMongoObjectId(targetArticle.memberId),
-		);
+		targetArticle.memberData = await this.memberService.getMember(null, shapeIntoMongoObjectId(targetArticle.memberId));
 
 		return targetArticle;
 	}
@@ -142,10 +136,7 @@ export class BoardArticleService {
 		const result = await this.boardArticleModel.findOneAndUpdate(search, input, { new: true }).exec();
 		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
-		if (
-			existing.articleStatus === BoardArticleStatus.ACTIVE &&
-			input.articleStatus === BoardArticleStatus.DELETE
-		) {
+		if (existing.articleStatus === BoardArticleStatus.ACTIVE && input.articleStatus === BoardArticleStatus.DELETE) {
 			await this.memberService.memberStatsEditor({
 				_id: memberId,
 				targetKey: 'memberArticles',
@@ -188,6 +179,7 @@ export class BoardArticleService {
 
 		if (search.articleStatus) match.articleStatus = search.articleStatus;
 		if (search.articleCategory) match.articleCategory = search.articleCategory;
+		if (search.text) match.articleTitle = { $regex: new RegExp(escapeRegex(search.text), 'i') };
 
 		const result = await this.boardArticleModel
 			.aggregate([
@@ -218,17 +210,12 @@ export class BoardArticleService {
 		const existing = await this.boardArticleModel.findById(input._id).exec();
 		if (!existing) throw new BadRequestException(Message.UPDATE_FAILED);
 
-		const result = await this.boardArticleModel
-			.findOneAndUpdate({ _id: input._id }, input, { new: true })
-			.exec();
+		const result = await this.boardArticleModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec();
 		if (!result) throw new BadRequestException(Message.UPDATE_FAILED);
 
-		if (
-			existing.articleStatus === BoardArticleStatus.ACTIVE &&
-			input.articleStatus === BoardArticleStatus.DELETE
-		) {
+		if (existing.articleStatus === BoardArticleStatus.ACTIVE && input.articleStatus === BoardArticleStatus.DELETE) {
 			await this.memberService.memberStatsEditor({
-				_id: existing.memberId as Types.ObjectId,
+				_id: existing.memberId,
 				targetKey: 'memberArticles',
 				modifier: -1,
 			});
@@ -237,7 +224,7 @@ export class BoardArticleService {
 			input.articleStatus === BoardArticleStatus.ACTIVE
 		) {
 			await this.memberService.memberStatsEditor({
-				_id: existing.memberId as Types.ObjectId,
+				_id: existing.memberId,
 				targetKey: 'memberArticles',
 				modifier: 1,
 			});
@@ -265,7 +252,7 @@ export class BoardArticleService {
 		if (!result) throw new BadRequestException(Message.REMOVE_FAILED);
 
 		await this.memberService.memberStatsEditor({
-			_id: existing.memberId as Types.ObjectId,
+			_id: existing.memberId,
 			targetKey: 'memberArticles',
 			modifier: -1,
 		});

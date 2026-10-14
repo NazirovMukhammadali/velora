@@ -9,7 +9,13 @@ import { ToursResolver } from './tours.resolver';
 import { ToursService } from './tours.service';
 
 @Module({
-	imports: [MongooseModule.forFeature([{ name: 'Tour', schema: TourSchema }]), LikeModule, MemberModule, ViewModule, AuthModule],
+	imports: [
+		MongooseModule.forFeature([{ name: 'Tour', schema: TourSchema }]),
+		LikeModule,
+		MemberModule,
+		ViewModule,
+		AuthModule,
+	],
 	providers: [ToursResolver, ToursService],
 })
 export class ToursModule {}

@@ -11,7 +11,7 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeService } from '../like/like.service';
 import { ViewService } from '../view/view.service';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { escapeRegex, shapeIntoMongoObjectId } from '../../libs/config';
 import { LikeInput } from '../../libs/dto/like/like.input';
 
 @Injectable()
@@ -41,7 +41,7 @@ export class FlightsService {
 	}
 
 	public async getFlights(input: FlightsInquiry): Promise<Flights> {
-		const match: Record<string, any> = { flightStatus: FlightStatus.ACTIVE };
+		const match: Record<string, any> = { flightStatus: FlightStatus.ACTIVE, departureTime: { $gt: new Date() } };
 		const sort = { [input?.sort ?? 'departureTime']: input?.direction ?? Direction.ASC };
 		const { departureAirport, arrivalAirport, departureDate, cabinClass, airline, minPrice, maxPrice } =
 			input.search ?? {};
@@ -60,7 +60,7 @@ export class FlightsService {
 			dayStart.setHours(0, 0, 0, 0);
 			const dayEnd = new Date(departureDate);
 			dayEnd.setHours(23, 59, 59, 999);
-			match.departureTime = { $gte: dayStart, $lte: dayEnd };
+			match.departureTime = { $gte: dayStart > new Date() ? dayStart : new Date(), $lte: dayEnd };
 		}
 
 		const pipeline: PipelineStage[] = [
@@ -153,6 +153,10 @@ export class FlightsService {
 		if (search?.arrivalAirport) match.arrivalAirport = search.arrivalAirport;
 		if (search?.airline) match.airline = search.airline;
 		if (search?.flightStatus) match.flightStatus = search.flightStatus;
+		if (search?.text) {
+			const regex = new RegExp(escapeRegex(search.text), 'i');
+			match.$or = [{ flightNumber: regex }, { airline: regex }, { departureAirport: regex }, { arrivalAirport: regex }];
+		}
 		if (search?.minPrice !== undefined || search?.maxPrice !== undefined) {
 			match.basePrice = {};
 			if (search.minPrice !== undefined) match.basePrice.$gte = search.minPrice;

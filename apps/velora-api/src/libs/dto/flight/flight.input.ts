@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { FlightCabinClass, FlightStatus } from '../../enums/flight.enum';
 import { Direction } from '../../enums/common.enum';
 
@@ -136,6 +136,10 @@ class AllFlightsSearch {
 	@Min(0)
 	@Field(() => Int, { nullable: true })
 	maxPrice?: number;
+	@IsOptional()
+	@Length(1, 100)
+	@Field(() => String, { nullable: true })
+	text?: string;
 }
 
 @InputType()

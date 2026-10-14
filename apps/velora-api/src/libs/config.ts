@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson';
 
 export const availableAgentSort = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
-export const availableMemberSort = ['created', 'updatedAt', 'memberLikes', 'memberViews'];
+export const availableMemberSort = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
 
 export const availableOptions = ['propertyBarter', 'propertyRent'];
 export const availablePropertySorts = [
@@ -100,6 +100,9 @@ export const lookupAuthMemberFollowed = (input: lookupAuthMemberFollowed) => {
 		},
 	};
 };
+
+/** Escapes user input so it can be used safely inside a RegExp. */
+export const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const lookupMember = {
 	$lookup: {

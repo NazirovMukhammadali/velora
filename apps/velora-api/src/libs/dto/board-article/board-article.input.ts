@@ -78,6 +78,11 @@ class ABAISearch {
 	@IsOptional()
 	@Field(() => BoardArticleCategory, { nullable: true })
 	articleCategory?: BoardArticleCategory;
+
+	@IsOptional()
+	@Length(1, 100)
+	@Field(() => String, { nullable: true })
+	text?: string;
 }
 
 @InputType()

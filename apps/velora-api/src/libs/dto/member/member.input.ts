@@ -117,7 +117,7 @@ export class MembersInquiry {
 	limit: number;
 
 	@IsOptional()
-	@IsIn([availableMemberSort])
+	@IsIn(availableMemberSort)
 	@Field(() => String, { nullable: true })
 	sort?: string;
 

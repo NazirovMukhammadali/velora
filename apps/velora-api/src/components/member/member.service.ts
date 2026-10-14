@@ -101,11 +101,7 @@ export class MemberService {
 		return result;
 	}
 
-	public async changePassword(
-		memberId: Types.ObjectId,
-		currentPassword: string,
-		newPassword: string,
-	): Promise<Member> {
+	public async changePassword(memberId: Types.ObjectId, currentPassword: string, newPassword: string): Promise<Member> {
 		const member = await this.memberModel
 			.findOne({
 				_id: memberId,
