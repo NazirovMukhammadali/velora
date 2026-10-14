@@ -8,7 +8,7 @@
    - `npm run build`
    - `npm run test -- --runInBand`
    - `npm run test:integration`
-3. Verify environment values (`SECRET_TOKEN`, `MONGO_*`, `CORS_ORIGINS`).
+3. Verify environment values (`SECRET_TOKEN`, `MONGO_*`, `CORS_ORIGINS`, `GEMINI_API_KEY`, `UPLOADS_DIR`).
 4. Confirm no sensitive files are staged (`.env`, credentials).
 5. Merge only green CI commits.
 
@@ -17,9 +17,13 @@
 1. Set `NODE_ENV=production`.
 2. Set production DB in `MONGO_PROD`.
 3. Set strict `CORS_ORIGINS` list.
-4. Apply migration or schema rollout plan (if any).
-5. Deploy API build.
-6. Smoke test:
+4. Set `UPLOADS_DIR` to a persistent volume (e.g. `/data/uploads`). Without it uploaded images live in the
+   app directory and are wiped on every redeploy. The directory is created on boot and served at `/uploads`.
+5. Set `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`); without a key the assistant answers from the built-in FAQ.
+6. Apply migration or schema rollout plan (if any).
+7. Deploy API build.
+8. Smoke test:
+   - `GET /health` → 200 with `database.status: "up"` (503 means MongoDB is unreachable)
    - `checkAuth`
    - `getPopularTours`
    - `createTourBooking`
@@ -31,7 +35,7 @@
 
 ## API down
 
-1. Check container/process health and restart logs.
+1. Check `GET /health` and the container/process restart logs.
 2. Confirm DB connectivity.
 3. Validate `SECRET_TOKEN` and env injection.
 4. Rollback to last known healthy commit if needed.

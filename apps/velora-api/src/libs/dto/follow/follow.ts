@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';
 

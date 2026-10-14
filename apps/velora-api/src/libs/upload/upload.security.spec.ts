@@ -4,8 +4,13 @@ import * as os from 'os';
 import * as path from 'path';
 import { Readable } from 'stream';
 import { Message } from '../enums/common.enum';
+import express from 'express';
+import request from 'supertest';
 import {
 	MAX_UPLOAD_FILE_SIZE,
+	UPLOADS_STATIC_OPTIONS,
+	ensureUploadsRoot,
+	getUploadsRoot,
 	assertSafeClientFilename,
 	assertSafeUploadTarget,
 	detectImageFromBuffer,
@@ -142,5 +147,51 @@ describe('upload.security', () => {
 		const marker = path.join(tempRoot, 'uploads', 'member', '.keep');
 		writeFileSync(marker, 'ok');
 		expect(readFileSync(marker, 'utf8')).toBe('ok');
+	});
+
+	describe('uploads root', () => {
+		afterEach(() => {
+			delete process.env.UPLOADS_DIR;
+		});
+
+		it('defaults to <cwd>/uploads and honours UPLOADS_DIR (relative or absolute)', () => {
+			expect(getUploadsRoot()).toBe(path.join(process.cwd(), 'uploads'));
+			process.env.UPLOADS_DIR = 'data/media';
+			expect(getUploadsRoot()).toBe(path.join(process.cwd(), 'data', 'media'));
+			process.env.UPLOADS_DIR = path.join(tempRoot, 'volume');
+			expect(getUploadsRoot()).toBe(path.join(tempRoot, 'volume'));
+		});
+
+		it('creates a missing root and writes uploads into the configured volume', async () => {
+			process.env.UPLOADS_DIR = path.join(tempRoot, 'volume', 'uploads');
+			expect(ensureUploadsRoot()).toBe(process.env.UPLOADS_DIR);
+			const relativeUrl = await saveSecureImageUpload({
+				filename: 'ok.png',
+				mimetype: 'image/png',
+				createReadStream: createMemoryStream(PNG_BUFFER),
+				target: 'member',
+			});
+			expect(relativeUrl).toBe('uploads/member/11111111-2222-3333-4444-555555555555.png');
+			expect(readFileSync(path.join(tempRoot, 'volume', relativeUrl))).toEqual(PNG_BUFFER);
+		});
+
+		it('serves stored images with safe headers and hides dotfiles / directory listings', async () => {
+			const root = ensureUploadsRoot();
+			mkdirSync(path.join(root, 'member'), { recursive: true });
+			writeFileSync(path.join(root, 'member', 'a.png'), PNG_BUFFER);
+			writeFileSync(path.join(root, '.env'), 'SECRET=1');
+			const app = express();
+			app.use('/uploads', express.static(root, UPLOADS_STATIC_OPTIONS));
+
+			const ok = await request(app).get('/uploads/member/a.png').expect(200);
+			expect(ok.headers['content-type']).toBe('image/png');
+			expect(ok.headers['x-content-type-options']).toBe('nosniff');
+			expect(ok.headers['cache-control']).toContain('immutable');
+			// Denied dotfiles fall through to a plain 404, so their existence is not revealed either.
+			const dotfile = await request(app).get('/uploads/.env').expect(404);
+			expect(dotfile.text).not.toContain('SECRET');
+			await request(app).get('/uploads/member/').expect(404);
+			await request(app).get('/uploads/%2e%2e/%2e%2e/etc/passwd').expect(404);
+		});
 	});
 });

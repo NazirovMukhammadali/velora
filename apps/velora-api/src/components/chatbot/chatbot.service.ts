@@ -69,13 +69,15 @@ export class ChatbotService {
 
 				const calls = response.toolCalls.slice(0, MAX_TOOL_CALLS_PER_ROUND);
 				messages.push({ role: 'assistant', toolCalls: calls });
-				const results: AiToolResult[] = [];
-				for (const call of calls) {
+				// Independent read-only queries: run them concurrently, keep the model's call order in the reply.
+				const executions = await Promise.all(
+					calls.map((call) => this.tools.execute(call.name, call.args, { memberId })),
+				);
+				const results: AiToolResult[] = calls.map((call, i) => {
 					if (call.name === 'get_my_bookings') usedBookings = true;
-					const execution = await this.tools.execute(call.name, call.args, { memberId });
-					sources.push(...execution.sources);
-					results.push({ id: call.id, name: call.name, output: execution.output });
-				}
+					sources.push(...executions[i].sources);
+					return { id: call.id, name: call.name, output: executions[i].output };
+				});
 				messages.push({ role: 'tool', results });
 			}
 		} catch (err) {

@@ -5,7 +5,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { HotelsInquiry, HotelInput, AllHotelsInquiry } from '../../libs/dto/hotel/hotel.input';
 import { HotelUpdate } from '../../libs/dto/hotel/hotel.update';
 import { Hotels, Hotel } from '../../libs/dto/hotel/hotel';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { HotelStatus } from '../../libs/enums/hotel.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';

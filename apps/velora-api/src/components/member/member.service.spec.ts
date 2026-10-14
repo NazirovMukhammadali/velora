@@ -32,7 +32,7 @@ describe('MemberService authorization security', () => {
 			createToken: jest.fn().mockResolvedValue('jwt-token'),
 		};
 
-		service = new MemberService(memberModel, {} as any, authService, {} as any, {} as any);
+		service = new MemberService(memberModel, authService, {} as any, {} as any);
 	});
 
 	describe('signup', () => {

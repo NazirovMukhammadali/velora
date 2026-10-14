@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId, Schema, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
@@ -14,14 +14,12 @@ import { StatisticModifier, T } from '../../libs/types/common';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
-import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { lookupAuthMemberLiked } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
 	constructor(
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
-		@InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
 		private authService: AuthService,
 		private viewService: ViewService,
 		private likeService: LikeService,
@@ -49,7 +47,7 @@ export class MemberService {
 	}
 
 	public async login(input: LoginInput): Promise<Member> {
-		const { memberNick, memberPassword } = input; // distract
+		const { memberNick } = input;
 		const response: Member | null = await this.memberModel
 			.findOne({
 				memberNick: memberNick,
@@ -292,26 +290,6 @@ export class MemberService {
 		const result = await this.memberModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		return result;
-	}
-
-	private async checkSubscription(followerId: Types.ObjectId, followingId: Types.ObjectId): Promise<MeFollowed[]> {
-		const result = await this.followModel
-			.findOne({
-				followerId: followerId,
-				followingId: followingId,
-			})
-			.exec();
-
-		if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-		return result
-			? [
-					{
-						followerId: followerId,
-						followingId: followingId,
-						myFollowing: true,
-					},
-				]
-			: [];
 	}
 
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member | null> {

@@ -1,35 +1,15 @@
-import { ObjectId } from 'bson';
+import { Types } from 'mongoose';
+import { T } from './types/common';
 
 export const availableAgentSort = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
 export const availableMemberSort = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
-
-export const availableOptions = ['propertyBarter', 'propertyRent'];
-export const availablePropertySorts = [
-	'createdAt',
-	'updatedAt',
-	'propertyLikes',
-	'propertyViews',
-	'propertyRank',
-	'propertyPrice',
-];
 
 export const availabeBoardArticleSorts = ['createdAt', 'updatedAt', 'articleLikes', 'articleViews'];
 export const availableNoticeSorts = ['createdAt', 'updatedAt'];
 export const availableCommentSorts = ['createdAt', 'updatedAt', 'commentRating'];
 
-/** IMAGE CONFIGURATION **/
-import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
-import { T } from './types/common';
-
-export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-export const getSerialForImage = (filename: string) => {
-	const ext = path.parse(filename).ext;
-	return uuidv4() + ext;
-};
-
 export const shapeIntoMongoObjectId = (target: any) => {
-	return typeof target === 'string' ? new ObjectId(target) : target;
+	return typeof target === 'string' ? new Types.ObjectId(target) : target;
 };
 
 export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => {
@@ -128,14 +108,5 @@ export const lookupFollowingData = {
 		localField: 'followingId',
 		foreignField: '_id',
 		as: 'followingData',
-	},
-};
-
-export const lookupFavorite = {
-	$lookup: {
-		from: 'members',
-		localField: 'favoriteProperty.memberId',
-		foreignField: '_id', // membersCollection dan izlaydi
-		as: 'favoriteProperty.memberData',
 	},
 };

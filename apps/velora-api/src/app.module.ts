@@ -12,7 +12,6 @@ import { AppResolver } from './app.resolver';
 import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
-import { SocketModule } from './socket/socket.module';
 import { AppThrottlerGuard } from './libs/throttler/app-throttler.guard';
 import { THROTTLER_OPTIONS } from './libs/throttler/throttler.config';
 
@@ -46,7 +45,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 		}),
 		ComponentsModule, // yuqori standart uchun // koprik // HTTP
 		DatabaseModule,
-		SocketModule, // koprik // HTTP || TCP
 	],
 	controllers: [AppController], // rest api
 	providers: [AppService, AppResolver, { provide: APP_GUARD, useClass: AppThrottlerGuard }], // graphql api

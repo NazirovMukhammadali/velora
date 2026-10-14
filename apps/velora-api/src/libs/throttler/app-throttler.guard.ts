@@ -15,7 +15,7 @@ const isGraphql = (context: ExecutionContext): boolean => context.getType<GqlCon
 abstract class ScopedThrottlerGuard extends ThrottlerGuard {
 	protected abstract readonly scope: string;
 
-	/** WebSocket gateways keep their own flow control. */
+	/** Only HTTP and GraphQL requests are throttled here (any other transport needs its own limits). */
 	protected async shouldSkip(context: ExecutionContext): Promise<boolean> {
 		return context.getType() !== 'http' && !isGraphql(context);
 	}

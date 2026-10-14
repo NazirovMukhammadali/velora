@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage, Types } from 'mongoose';
 import { LikeInput } from '../../libs/dto/like/like.input';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { T } from '../../libs/types/common';
 import { Tour, Tours } from '../../libs/dto/tour/tour';

@@ -5,16 +5,24 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
-import PropertySchema from '../../velora-api/src/schemas/Property.model';
+import FlightSchema from '../../velora-api/src/schemas/Flight.model';
+import HotelSchema from '../../velora-api/src/schemas/Hotel.model';
 import MemberSchema from '../../velora-api/src/schemas/Member.model';
+import RentcarSchema from '../../velora-api/src/schemas/Rentcar.model';
+import TourSchema from '../../velora-api/src/schemas/Tour.model';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
 		DatabaseModule,
 		ScheduleModule.forRoot(),
-		MongooseModule.forFeature([{ name: 'Property', schema: PropertySchema }]),
-		MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
+		MongooseModule.forFeature([
+			{ name: 'Hotel', schema: HotelSchema },
+			{ name: 'Tour', schema: TourSchema },
+			{ name: 'Rentcar', schema: RentcarSchema },
+			{ name: 'Flight', schema: FlightSchema },
+			{ name: 'Member', schema: MemberSchema },
+		]),
 	],
 	controllers: [BatchController],
 	providers: [BatchService],

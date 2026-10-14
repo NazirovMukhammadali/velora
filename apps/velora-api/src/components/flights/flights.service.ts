@@ -4,7 +4,7 @@ import { Model, PipelineStage, Types } from 'mongoose';
 import { AllFlightsInquiry, FlightsInquiry, FlightInput } from '../../libs/dto/flight/flight.input';
 import { FlightUpdate } from '../../libs/dto/flight/flight.update';
 import { Flight, Flights } from '../../libs/dto/flight/flight';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { FlightStatus } from '../../libs/enums/flight.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';

@@ -5,7 +5,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { AllRentcarsInquiry, RentcarInput, RentcarsInquiry } from '../../libs/dto/rentcar/rentcar.input';
 import { RentcarUpdate } from '../../libs/dto/rentcar/rentcar.update';
 import { Rentcar, Rentcars } from '../../libs/dto/rentcar/rentcar';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { RentcarStatus } from '../../libs/enums/rentcar.enum';

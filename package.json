@@ -29,7 +29,7 @@
 		"seed:members": "ts-node apps/velora-api/src/seed/members.seed.ts",
 		"seed:bookings": "ts-node apps/velora-api/src/seed/bookings.seed.ts",
 		"seed:demo": "ts-node apps/velora-api/src/seed/demo-content.seed.ts",
-		"seed:all": "yarn seed:members && yarn seed:tours && yarn seed:hotels && yarn seed:flights && yarn seed:rentcar"
+		"seed:all": "npm run seed:members && npm run seed:tours && npm run seed:hotels && npm run seed:flights && npm run seed:rentcar"
 	},
 	"lint-staged": {
 		"*.{ts,tsx,js,json,md}": [
@@ -55,21 +55,17 @@
 		"@nestjs/mongoose": "^10.0.2",
 		"@nestjs/platform-express": "^10.0.0",
 		"@nestjs/platform-socket.io": "^10.2.10",
-		"@nestjs/platform-ws": "^10.2.10",
 		"@nestjs/schedule": "^4.0.0",
 		"@nestjs/throttler": "^6.7.1",
-		"@nestjs/websockets": "^10.2.10",
 		"bcryptjs": "^2.4.3",
 		"class-transformer": "^0.5.1",
 		"class-validator": "^0.14.0",
 		"graphql": "^16.8.1",
 		"graphql-upload": "^13.0.0",
-		"moment": "^2.29.4",
 		"mongoose": "^8.0.0",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^7.8.1",
-		"uuid": "^13.0.0",
-		"ws": "^8.14.2"
+		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
 		"@nestjs/cli": "^10.0.0",
@@ -79,7 +75,6 @@
 		"@types/jest": "^29.5.2",
 		"@types/node": "^20.3.1",
 		"@types/supertest": "^2.0.12",
-		"@types/ws": "^8.5.10",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"eslint": "^8.42.0",

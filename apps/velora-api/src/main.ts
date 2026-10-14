@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { LoggingInterceptor } from './libs/interceptor/Logging.interceptor';
 import { graphqlUploadExpress } from 'graphql-upload';
 import * as express from 'express';
-import { WsAdapter } from '@nestjs/platform-ws';
+import { UPLOADS_STATIC_OPTIONS, ensureUploadsRoot } from './libs/upload/upload.security';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
@@ -28,9 +28,15 @@ async function bootstrap() {
 	});
 
 	app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 10 }));
-	app.use('/uploads', express.static('./uploads'));
+	// Same directory the upload flow writes to; created on boot so a fresh deploy/volume serves immediately.
+	const uploadsRoot = ensureUploadsRoot();
+	app.use('/uploads', express.static(uploadsRoot, UPLOADS_STATIC_OPTIONS));
+	const logger = new Logger('Bootstrap');
+	logger.log(`Serving uploads from ${uploadsRoot}`);
+	if (isProduction && !process.env.UPLOADS_DIR) {
+		logger.warn('UPLOADS_DIR is not set — uploaded images live inside the app directory and are lost on redeploy');
+	}
 
-	app.useWebSocketAdapter(new WsAdapter(app));
 	await app.listen(process.env.PORT ?? 3003);
 }
 bootstrap();

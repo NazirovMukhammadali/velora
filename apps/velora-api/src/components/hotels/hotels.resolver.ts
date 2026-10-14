@@ -5,7 +5,7 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Hotel, Hotels } from '../../libs/dto/hotel/hotel';
 import { AllHotelsInquiry, HotelInput, HotelsInquiry } from '../../libs/dto/hotel/hotel.input';
 import { HotelUpdate } from '../../libs/dto/hotel/hotel.update';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { MemberType } from '../../libs/enums/member.enum';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';

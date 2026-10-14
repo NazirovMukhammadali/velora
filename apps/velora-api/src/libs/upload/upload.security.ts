@@ -70,7 +70,34 @@ export const detectImageFromBuffer = (buffer: Buffer): DetectedImage | null => {
 
 export const createServerUploadFilename = (ext: DetectedImage['ext']): string => `${uuidv4()}${ext}`;
 
-export const getUploadsRoot = (): string => path.resolve(process.cwd(), 'uploads');
+/**
+ * Single source of truth for where uploads live — used both when writing files and when serving them.
+ * Set UPLOADS_DIR to a persistent volume in production (container filesystems are wiped on redeploy);
+ * relative values resolve against the process working directory. Default: <cwd>/uploads.
+ */
+export const getUploadsRoot = (): string => path.resolve(process.cwd(), process.env.UPLOADS_DIR?.trim() || 'uploads');
+
+/** Creates the uploads root if it is missing (fresh clone, new volume) and returns its absolute path. */
+export const ensureUploadsRoot = (): string => {
+	const root = getUploadsRoot();
+	mkdirSync(root, { recursive: true });
+	return root;
+};
+
+/**
+ * express.static options for /uploads. Files get server-generated UUID names and are never rewritten,
+ * so they can be cached as immutable; nosniff stops browsers from executing a disguised upload.
+ */
+export const UPLOADS_STATIC_OPTIONS = {
+	index: false,
+	dotfiles: 'deny',
+	redirect: false,
+	maxAge: '30d',
+	immutable: true,
+	setHeaders: (res: { setHeader: (name: string, value: string) => void }) => {
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+	},
+} as const;
 
 export const resolveSafeUploadPath = (
 	target: AllowedUploadTarget,

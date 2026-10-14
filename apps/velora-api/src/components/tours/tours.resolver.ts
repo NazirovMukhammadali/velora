@@ -2,7 +2,7 @@ import { UseGuards } from '@nestjs/common';
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Types } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { Tour, Tours } from '../../libs/dto/tour/tour';
 import {
 	AgentToursInquiry,

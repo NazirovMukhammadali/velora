@@ -3,7 +3,7 @@ import { UseGuards } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Flight, Flights } from '../../libs/dto/flight/flight';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { AllFlightsInquiry, FlightsInquiry, FlightInput } from '../../libs/dto/flight/flight.input';
 import { FlightUpdate } from '../../libs/dto/flight/flight.update';
 import { FlightsService } from './flights.service';

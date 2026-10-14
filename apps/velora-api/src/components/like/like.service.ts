@@ -5,10 +5,8 @@ import { Like, MeLiked } from '../../libs/dto/like/like';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { T } from '../../libs/types/common';
 import { Message } from '../../libs/enums/common.enum';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
+import { OrdinaryInquiry } from '../../libs/dto/common/ordinary.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
-import { Properties } from '../../libs/dto/property/property';
-import { lookupFavorite } from '../../libs/config';
 import { Flights } from '../../libs/dto/flight/flight';
 import { Hotels } from '../../libs/dto/hotel/hotel';
 import { Rentcars } from '../../libs/dto/rentcar/rentcar';
@@ -46,44 +44,6 @@ export class LikeService {
 			.exec();
 
 		return result ? [{ memberId: memberId, likeRefId: likeRefId, myFavorite: true }] : [];
-	}
-
-	public async getFavoriteProperties(memberId: Types.ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-		const { page, limit } = input;
-		const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId }; // distraction Match orqaliy
-
-		const data: T[] = await this.likeModel
-			.aggregate([
-				{ $match: match },
-				{ $sort: { updatedAt: -1 } },
-				{
-					$lookup: {
-						from: 'properties',
-						localField: 'likeRefId',
-						foreignField: '_id',
-						as: 'favoriteProperty', // Qaysi nom bilan qabul etyapmiz
-					},
-				},
-				{ $unwind: '$favoriteProperty' }, //oddiy ARRAY ichidan tashqariga chiqarishni talap qilyapmiz
-				{
-					$facet: {
-						// Pipelines 2 - list & metaCounter
-						list: [
-							{ $skip: (page - 1) * limit },
-							{ $limit: limit },
-							lookupFavorite,
-							{ $unwind: '$favoriteProperty.memberData' },
-						],
-						metaCounter: [{ $count: 'total' }],
-					},
-				},
-			])
-			.exec();
-
-		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
-		result.list = data[0].list.map((ele) => ele.favoriteProperty); // iteration qilyapmiz MAP orqaliy
-
-		return result;
 	}
 
 	public async getFavoriteTours(memberId: Types.ObjectId, input: OrdinaryInquiry): Promise<Tours> {
