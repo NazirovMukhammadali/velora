@@ -5,7 +5,7 @@ import { Follower, Followers, Following, Followings } from '../../libs/dto/follo
 import { MemberService } from '../member/member.service';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { Member } from '../../libs/dto/member/member';
-import { MemberType } from '../../libs/enums/member.enum';
+import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
 import { FollowInquiry } from '../../libs/dto/follow/follow.input';
 import { T } from '../../libs/types/common';
 import {
@@ -14,6 +14,11 @@ import {
 	lookupFollowerData,
 	lookupFollowingData,
 } from '../../libs/config';
+
+/** Instagram-style: any regular member (traveller or agent) can follow any other one; admins are not followable. */
+const FOLLOWABLE_TYPES: string[] = [MemberType.USER, MemberType.AGENT];
+/** Follow lists only show members that still exist and are not soft-deleted (same rule as getMember). */
+const LISTED_MEMBER_STATUSES = [MemberStatus.ACTIVE, MemberStatus.BLOCK];
 
 @Injectable()
 export class FollowService {
@@ -33,7 +38,12 @@ export class FollowService {
 		if (!followerMember || !targetMember) {
 			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 		}
-		if (followerMember.memberType !== MemberType.USER || targetMember.memberType !== MemberType.AGENT) {
+		if (
+			!FOLLOWABLE_TYPES.includes(followerMember.memberType) ||
+			!FOLLOWABLE_TYPES.includes(targetMember.memberType) ||
+			followerMember.memberStatus !== MemberStatus.ACTIVE ||
+			targetMember.memberStatus !== MemberStatus.ACTIVE
+		) {
 			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		}
 
@@ -105,20 +115,18 @@ export class FollowService {
 		const result = await this.followModel
 			.aggregate([
 				{ $match: match },
+				// Drop follows of removed/deleted members before paging so the list and total agree.
+				lookupFollowingData,
+				{ $unwind: '$followingData' },
+				{ $match: { 'followingData.memberStatus': { $in: LISTED_MEMBER_STATUSES } } },
 				{ $sort: { createdAt: Direction.DESC } },
-
 				{
 					$facet: {
 						list: [
 							{ $skip: (page - 1) * limit },
-							{
-								$limit: limit,
-							},
+							{ $limit: limit },
 							lookupAuthMemberLiked(memberId, '$followingId'),
 							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$followingId' }),
-
-							lookupFollowingData,
-							{ $unwind: '$followingData' },
 						],
 						metaCounter: [
 							{
@@ -144,25 +152,19 @@ export class FollowService {
 
 		const result = await this.followModel
 			.aggregate([
-				{
-					$match: match,
-				},
-				{
-					$sort: { createdAt: Direction.DESC },
-				},
+				{ $match: match },
+				// Drop follows of removed/deleted members before paging so the list and total agree.
+				lookupFollowerData,
+				{ $unwind: '$followerData' },
+				{ $match: { 'followerData.memberStatus': { $in: LISTED_MEMBER_STATUSES } } },
+				{ $sort: { createdAt: Direction.DESC } },
 				{
 					$facet: {
 						list: [
-							{
-								$skip: (page - 1) * limit,
-							},
-							{
-								$limit: limit,
-							},
+							{ $skip: (page - 1) * limit },
+							{ $limit: limit },
 							lookupAuthMemberLiked(memberId, '$followerId'),
 							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$followerId' }),
-							lookupFollowerData,
-							{ $unwind: '$followerData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},

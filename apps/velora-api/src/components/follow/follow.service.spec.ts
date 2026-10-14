@@ -10,7 +10,7 @@ jest.mock('../../libs/config', () => ({
 	lookupFollowingData: { $match: {} },
 }));
 import { FollowService } from './follow.service';
-import { MemberType } from '../../libs/enums/member.enum';
+import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
 
 const execMock = <T>(value: T) => ({
 	exec: jest.fn().mockResolvedValue(value),
@@ -37,14 +37,25 @@ describe('FollowService', () => {
 		service = new FollowService(followModel, memberService);
 	});
 
-	it('subscribes when USER follows AGENT', async () => {
+	const member = (_id: Types.ObjectId, memberType: MemberType, memberStatus = MemberStatus.ACTIVE) => ({
+		_id,
+		memberType,
+		memberStatus,
+	});
+
+	it.each([
+		[MemberType.USER, MemberType.AGENT],
+		[MemberType.USER, MemberType.USER],
+		[MemberType.AGENT, MemberType.USER],
+		[MemberType.AGENT, MemberType.AGENT],
+	])('subscribes when %s follows %s (Instagram-style)', async (followerType, targetType) => {
 		const followerId = new Types.ObjectId();
 		const followingId = new Types.ObjectId();
 		const createdFollow = { _id: new Types.ObjectId(), followerId, followingId };
 
 		memberService.getMember
-			.mockResolvedValueOnce({ _id: followerId, memberType: MemberType.USER })
-			.mockResolvedValueOnce({ _id: followingId, memberType: MemberType.AGENT });
+			.mockResolvedValueOnce(member(followerId, followerType))
+			.mockResolvedValueOnce(member(followingId, targetType));
 		followModel.findOne.mockReturnValue(execMock(null));
 		followModel.create.mockResolvedValue(createdFollow);
 
@@ -60,26 +71,27 @@ describe('FollowService', () => {
 		await expect(service.subscribe(memberId, memberId)).rejects.toBeInstanceOf(InternalServerErrorException);
 	});
 
-	it('rejects AGENT following AGENT', async () => {
+	it('rejects following an admin', async () => {
 		const followerId = new Types.ObjectId();
 		const followingId = new Types.ObjectId();
 
 		memberService.getMember
-			.mockResolvedValueOnce({ _id: followerId, memberType: MemberType.AGENT })
-			.mockResolvedValueOnce({ _id: followingId, memberType: MemberType.AGENT });
+			.mockResolvedValueOnce(member(followerId, MemberType.USER))
+			.mockResolvedValueOnce(member(followingId, MemberType.ADMIN));
 
 		await expect(service.subscribe(followerId, followingId)).rejects.toBeInstanceOf(BadRequestException);
 	});
 
-	it('rejects USER following USER', async () => {
+	it('rejects follows involving a blocked member', async () => {
 		const followerId = new Types.ObjectId();
 		const followingId = new Types.ObjectId();
 
 		memberService.getMember
-			.mockResolvedValueOnce({ _id: followerId, memberType: MemberType.USER })
-			.mockResolvedValueOnce({ _id: followingId, memberType: MemberType.USER });
+			.mockResolvedValueOnce(member(followerId, MemberType.USER))
+			.mockResolvedValueOnce(member(followingId, MemberType.AGENT, MemberStatus.BLOCK));
 
 		await expect(service.subscribe(followerId, followingId)).rejects.toBeInstanceOf(BadRequestException);
+		expect(followModel.create).not.toHaveBeenCalled();
 	});
 
 	it('rejects duplicate follow', async () => {
@@ -87,8 +99,8 @@ describe('FollowService', () => {
 		const followingId = new Types.ObjectId();
 
 		memberService.getMember
-			.mockResolvedValueOnce({ _id: followerId, memberType: MemberType.USER })
-			.mockResolvedValueOnce({ _id: followingId, memberType: MemberType.AGENT });
+			.mockResolvedValueOnce(member(followerId, MemberType.USER))
+			.mockResolvedValueOnce(member(followingId, MemberType.AGENT));
 		followModel.findOne.mockReturnValue(execMock({ _id: new Types.ObjectId() }));
 
 		await expect(service.subscribe(followerId, followingId)).rejects.toBeInstanceOf(BadRequestException);

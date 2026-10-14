@@ -13,11 +13,15 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { MemberStatus } from '../../libs/enums/member.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { T } from '../../libs/types/common';
 import { LikeService } from '../like/like.service';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
+
+/** Authors whose articles stay public (matches MemberService.getMember); removed/DELETE authors are hidden. */
+const VISIBLE_AUTHOR_STATUSES = [MemberStatus.ACTIVE, MemberStatus.BLOCK];
 
 @Injectable()
 export class BoardArticleService {
@@ -52,16 +56,11 @@ export class BoardArticleService {
 		if (search.articleCategory) match.articleCategory = search.articleCategory;
 		if (search.memberId) match.memberId = shapeIntoMongoObjectId(search.memberId);
 		if (search.text) {
-			const regex = new RegExp(search.text, 'i');
+			const regex = new RegExp(escapeRegex(search.text), 'i');
 			match.$or = [{ articleTitle: regex }, { articleContent: regex }];
 		}
 
-		const listStages: any[] = [
-			{ $skip: (input.page - 1) * input.limit },
-			{ $limit: input.limit },
-			lookupMember,
-			{ $unwind: { path: '$memberData', preserveNullAndEmptyArrays: true } },
-		];
+		const listStages: any[] = [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }];
 
 		if (memberId) {
 			listStages.push(lookupAuthMemberLiked(memberId));
@@ -70,6 +69,11 @@ export class BoardArticleService {
 		const result = await this.boardArticleModel
 			.aggregate([
 				{ $match: match },
+				// Same visibility rule as getBoardArticle (getMember): hide posts whose author was removed or
+				// soft-deleted *before* paging, so the next article fills the slot and the total stays right.
+				lookupMember,
+				{ $unwind: '$memberData' },
+				{ $match: { 'memberData.memberStatus': { $in: VISIBLE_AUTHOR_STATUSES } } },
 				{ $sort: sort },
 				{
 					$facet: {
@@ -100,6 +104,13 @@ export class BoardArticleService {
 		if (!result) throw new NotFoundException(Message.NO_DATA_FOUND);
 		const targetArticle = result as BoardArticle;
 
+		// An article whose author was removed is gone too (404, not a 500 from the member lookup).
+		targetArticle.memberData = await this.memberService
+			.getMember(null, shapeIntoMongoObjectId(targetArticle.memberId))
+			.catch(() => {
+				throw new NotFoundException(Message.NO_DATA_FOUND);
+			});
+
 		if (memberId) {
 			const newView = await this.viewService.recordView({
 				memberId,
@@ -117,8 +128,6 @@ export class BoardArticleService {
 				likeGroup: LikeGroup.ARTICLE,
 			});
 		}
-
-		targetArticle.memberData = await this.memberService.getMember(null, shapeIntoMongoObjectId(targetArticle.memberId));
 
 		return targetArticle;
 	}

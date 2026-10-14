@@ -15,11 +15,13 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { lookupAuthMemberLiked } from '../../libs/config';
+import { MeFollowed } from '../../libs/dto/follow/follow';
 
 @Injectable()
 export class MemberService {
 	constructor(
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
+		@InjectModel('Follow') private readonly followModel: Model<unknown>,
 		private authService: AuthService,
 		private viewService: ViewService,
 		private likeService: LikeService,
@@ -162,8 +164,16 @@ export class MemberService {
 			};
 
 			targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput);
+			targetMember.meFollowed = await this.checkFollowing(memberId, targetId);
 		}
 		return targetMember;
+	}
+
+	/** Drives the Follow / Unfollow button on a member's profile for the signed-in viewer. */
+	private async checkFollowing(followerId: Types.ObjectId, followingId: Types.ObjectId): Promise<MeFollowed[]> {
+		if (String(followerId) === String(followingId)) return [];
+		const exists = await this.followModel.exists({ followerId, followingId }).exec();
+		return exists ? [{ followerId, followingId, myFollowing: true }] : [];
 	}
 
 	public async getAgents(memberId: Types.ObjectId, input: AgentsInquiry): Promise<Members> {

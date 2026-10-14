@@ -6,6 +6,7 @@ import { BoardArticleService } from './board-article.service';
 
 jest.mock('../../libs/config', () => ({
 	shapeIntoMongoObjectId: jest.fn((value) => value),
+	escapeRegex: jest.fn((value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
 	lookupMember: { $lookup: { from: 'members', localField: 'memberId', foreignField: '_id', as: 'memberData' } },
 	lookupAuthMemberLiked: jest.fn(() => ({ $lookup: { from: 'likes', as: 'meLiked' } })),
 }));
@@ -80,6 +81,45 @@ describe('BoardArticleService', () => {
 
 		expect(result.list).toEqual([]);
 		expect(result.metaCounter[0].total).toBe(0);
+	});
+
+	it('hides articles of removed or deleted authors before paging', async () => {
+		boardArticleModel.aggregate.mockReturnValue(execMock([]));
+
+		await service.getBoardArticles(null, { page: 2, limit: 6, search: {} });
+
+		const pipeline: any[] = boardArticleModel.aggregate.mock.calls[0][0];
+		const facetAt = pipeline.findIndex((stage) => stage.$facet);
+		const unwindAt = pipeline.findIndex((stage) => stage.$unwind === '$memberData');
+		const authorMatchAt = pipeline.findIndex((stage) => stage.$match?.['memberData.memberStatus']);
+		// Strict unwind drops articles whose author document no longer exists.
+		expect(unwindAt).toBeGreaterThan(-1);
+		expect(pipeline[authorMatchAt].$match['memberData.memberStatus']).toEqual({ $in: ['ACTIVE', 'BLOCK'] });
+		// Filtering happens before $skip/$limit and the count, so another article takes the slot.
+		expect(unwindAt).toBeLessThan(facetAt);
+		expect(authorMatchAt).toBeLessThan(facetAt);
+	});
+
+	it('returns 404 for an article whose author was removed, without recording a view', async () => {
+		const articleId = new Types.ObjectId();
+		boardArticleModel.findOne.mockReturnValue({
+			lean: () => execMock({ _id: articleId, memberId: new Types.ObjectId(), articleViews: 0 }),
+		});
+		memberService.getMember.mockRejectedValue(new Error('No data found'));
+
+		await expect(service.getBoardArticle(new Types.ObjectId(), String(articleId))).rejects.toBeInstanceOf(
+			NotFoundException,
+		);
+		expect(viewService.recordView).not.toHaveBeenCalled();
+	});
+
+	it('escapes regex characters in the article text search', async () => {
+		boardArticleModel.aggregate.mockReturnValue(execMock([]));
+
+		await service.getBoardArticles(null, { page: 1, limit: 6, search: { text: 'a.*(' } });
+
+		const match = boardArticleModel.aggregate.mock.calls[0][0][0].$match;
+		expect(match.$or[0].articleTitle.source).toBe('a\\.\\*\\(');
 	});
 
 	it('returns empty-safe admin listing', async () => {
