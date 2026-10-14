@@ -15,7 +15,7 @@ const describeIntegration = canRunMongoMemoryTests ? describe : describe.skip;
  * counters and the unique index are exercised for real; auth, views and likes are stubbed.
  */
 describeIntegration('Follow flow (integration, mongo-memory)', () => {
-	let mongod: MongoMemoryServer;
+	let mongod: MongoMemoryServer | undefined;
 	let connection: mongoose.Connection;
 	let memberModel: Model<any>;
 	let followModel: Model<any>;
@@ -30,8 +30,12 @@ describeIntegration('Follow flow (integration, mongo-memory)', () => {
 	};
 
 	beforeAll(async () => {
-		mongod = await MongoMemoryServer.create();
-		connection = await mongoose.createConnection(mongod.getUri('velora-follow')).asPromise();
+		// CI provides a real MongoDB (MONGO_TEST_URI); locally an in-memory server is started.
+		const externalUri = process.env.MONGO_TEST_URI;
+		if (!externalUri) mongod = await MongoMemoryServer.create();
+		const uri = externalUri ?? mongod!.getUri();
+		connection = await mongoose.createConnection(uri, { dbName: 'velora_follow_integration' }).asPromise();
+		await connection.dropDatabase();
 		memberModel = connection.model('Member', MemberSchema);
 		followModel = connection.model('Follow', FollowSchema);
 		await followModel.syncIndexes();
@@ -60,6 +64,7 @@ describeIntegration('Follow flow (integration, mongo-memory)', () => {
 	}, 120_000);
 
 	afterAll(async () => {
+		await connection?.dropDatabase();
 		await connection?.close();
 		await mongod?.stop();
 	});
