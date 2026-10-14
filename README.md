@@ -19,10 +19,24 @@
 [![Review Gate](https://img.shields.io/badge/Review-Confirmed%20booking%20required-success)](#booking-contract-locked)
 [![Follow](https://img.shields.io/badge/Feature-Follow-informational)](#core-modules)
 [![Like](https://img.shields.io/badge/Feature-Like-informational)](#core-modules)
-[![Chatbot](https://img.shields.io/badge/Feature-Rule--based%20assistant-informational)](#core-modules)
+[![AI Assistant](https://img.shields.io/badge/AI-Gemini%20travel%20assistant-8E75B2?logo=googlegemini&logoColor=white)](#core-modules)
 
-Velora API is a portfolio-grade NestJS + GraphQL backend for a travel booking demo.
+Velora API is the NestJS + GraphQL backend of the Velora travel booking platform.
 It focuses on clean architecture, maintainable code, and practical domain boundaries without production-scale complexity.
+The web client lives in [velora-web](https://github.com/NazirovMukhammadali/velora-web).
+
+## Tech stack
+
+| Concern                  | Technology                                                                       |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| Framework                | NestJS (Node.js), TypeScript                                                     |
+| API architecture         | GraphQL (code-first) and REST health check (`GET /health`)                       |
+| Database & ODM           | MongoDB, Mongoose                                                                |
+| AI engine                | Google Gemini 3.5 Flash-Lite (`@google/genai`) with parallel tool calls          |
+| Security & rate limiting | JWT authentication, `@nestjs/throttler` (global and AI assistant limits)         |
+| Scheduling               | `@nestjs/schedule` (daily flight schedule roll-forward, listing rank batch)      |
+| Testing                  | Jest (unit tests and in-memory MongoDB integration tests)                        |
+| Tooling                  | npm (`package-lock.json`), ESLint, Prettier, Husky + lint-staged, GitHub Actions |
 
 ## Core modules
 
@@ -30,6 +44,9 @@ It focuses on clean architecture, maintainable code, and practical domain bounda
 - `flights`, `hotels`, `rentcar`, `tours`
 - `bookings` (minimal workflow: create, list mine, confirm)
 - `comment` (agent-level review/rating with purchase gate)
+- `chatbot` — `askTravelAssistant` mutation: Gemini answers with live listings through read-only, validated tools
+  (safe DTO mappers, identity only from the JWT, 15 requests/min, FAQ fallback when the model is unavailable)
+- `board-article`, `notice` — community articles and CS notices / FAQ
 
 ## Domain responsibilities (locked)
 
@@ -45,7 +62,7 @@ It focuses on clean architecture, maintainable code, and practical domain bounda
 
 ## Requirements
 
-- Node.js 20+
+- Node.js 20.19+
 - npm 10+
 - MongoDB (local or remote)
 
@@ -57,6 +74,14 @@ Copy `.env.example` to `.env` and fill in values:
 cp .env.example .env
 ```
 
+| Variable                         | Purpose                                                         |
+| -------------------------------- | --------------------------------------------------------------- |
+| `MONGO_DEV` / `MONGO_PROD`       | MongoDB connection strings                                      |
+| `SECRET_TOKEN`                   | JWT signing secret                                              |
+| `CORS_ORIGINS`                   | Allowed web origins in production                               |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | AI assistant; without a key it answers from the built-in FAQ    |
+| `UPLOADS_DIR`                    | Persistent directory for uploaded images (served at `/uploads`) |
+
 ## Install and run
 
 ```bash
@@ -64,7 +89,7 @@ npm install
 npm run start:dev
 ```
 
-GraphQL endpoint: `http://localhost:3003/graphql`
+GraphQL endpoint: `http://localhost:3003/graphql` · Health check: `http://localhost:3003/health`
 
 ## Quality commands
 
@@ -79,17 +104,15 @@ npm run test
 # e2e-lite suite
 npm run test:e2e
 
-# integration e2e (mongo-memory; skipped on darwin local)
+# integration e2e (mongo-memory; on macOS set RUN_MONGO_MEMORY_TESTS=true)
 npm run test:integration
 ```
 
 ## Seed commands
 
 ```bash
-npm run seed:flights
-npm run seed:hotels
-npm run seed:rentcar
-npm run seed:tours
+npm run seed:all        # members, tours, hotels, flights, rental cars
+npm run seed:demo       # community articles and demo content
 ```
 
 ## Git hooks and CI
@@ -117,6 +140,9 @@ npm run seed:tours
 - In production:
   - GraphQL Playground and introspection are disabled.
   - CORS origins are restricted via `CORS_ORIGINS`.
+  - Point `UPLOADS_DIR` at a persistent volume; the directory is created on boot.
+- `GET /health` returns uptime and a live MongoDB ping (`503` when the database is unreachable).
+- Rate limiting: 300 requests/min per client globally, 15/min for the AI assistant (per member or IP).
 - Review write policy:
   - Only `USER` can write review/rating on `AGENT`.
   - Writer must have at least one `CONFIRMED` `TOUR` booking with that agent.
@@ -131,4 +157,4 @@ See `docs/GRAPHQL_CONTRACT_OPERATIONS.md` for stable GraphQL operation contract.
 
 ## Release note
 
-- Backend MVP ready (portfolio release mode).
+- Backend ready for portfolio release: Gemini assistant, health check, rate limiting and persistent uploads.
